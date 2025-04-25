@@ -1,4 +1,6 @@
 
+import { Button } from "@/components/ui/button";
+
 export const SOSAlert = () => {
   return (
     <div className="bg-red-50 border border-red-100 rounded-lg p-4 flex items-center justify-between">
