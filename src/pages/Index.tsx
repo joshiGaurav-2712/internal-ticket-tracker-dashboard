@@ -1,11 +1,34 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+
+import { Navigation } from "@/components/Navigation";
+import { SummaryCards } from "@/components/SummaryCards";
+import { StatusOverview } from "@/components/StatusOverview";
+import { SOSAlert } from "@/components/SOSAlert";
+import { TicketFilters } from "@/components/TicketFilters";
+import { TicketTable } from "@/components/TicketTable";
 
 const Index = () => {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4">Welcome to Your Blank App</h1>
-        <p className="text-xl text-gray-600">Start building your amazing project here!</p>
+    <div className="min-h-screen bg-gray-50">
+      <Navigation />
+      <div className="container mx-auto py-6 px-4">
+        <div className="mb-8">
+          <h2 className="text-xl font-semibold mb-4">Summary</h2>
+          <SummaryCards />
+        </div>
+        
+        <div className="mb-8">
+          <StatusOverview />
+        </div>
+        
+        <div className="mb-8">
+          <SOSAlert />
+        </div>
+        
+        <div className="mb-8">
+          <h2 className="text-xl font-semibold mb-4">Ticket Details</h2>
+          <TicketFilters />
+          <TicketTable />
+        </div>
       </div>
     </div>
   );
