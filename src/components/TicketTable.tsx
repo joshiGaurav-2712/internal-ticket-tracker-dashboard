@@ -1,5 +1,14 @@
 
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 
 interface Ticket {
   id: string;
@@ -8,6 +17,7 @@ interface Ticket {
   status: string;
   tatStatus: string;
   timeCreated: string;
+  assignedTo?: string;
 }
 
 const tickets: Ticket[] = [
@@ -17,7 +27,8 @@ const tickets: Ticket[] = [
     title: "API Integration Fix",
     status: "In Progress",
     tatStatus: "2h left",
-    timeCreated: "4 hours ago"
+    timeCreated: "4 hours ago",
+    assignedTo: "David Thompson"
   },
   {
     id: "#55",
@@ -25,9 +36,36 @@ const tickets: Ticket[] = [
     title: "Payment Gateway Error",
     status: "Open",
     tatStatus: "3h left",
-    timeCreated: "6 hours ago"
+    timeCreated: "6 hours ago",
+    assignedTo: "Sophia Wilson"
+  },
+  {
+    id: "#53",
+    priority: "Medium",
+    title: "Page Optimization",
+    status: "Completed",
+    tatStatus: "Done",
+    timeCreated: "1 day, 16 hours ago",
+    assignedTo: "James Rodriguez"
+  },
+  {
+    id: "#52",
+    priority: "High",
+    title: "Meet with kreo",
+    status: "Completed",
+    tatStatus: "Done",
+    timeCreated: "5 days, 23 hours ago",
+    assignedTo: "Emily Johnson"
+  },
+  {
+    id: "#51",
+    priority: "Low",
+    title: "Protouch Meet",
+    status: "Completed",
+    tatStatus: "Done",
+    timeCreated: "5 days, 23 hours ago",
+    assignedTo: "Michael Chen"
   }
-  // Add more sample tickets here
 ];
 
 const getPriorityClass = (priority: string) => {
@@ -56,45 +94,62 @@ const getStatusClass = (status: string) => {
   }
 };
 
+const getTatStatusIndicator = (tatStatus: string) => {
+  if (tatStatus.includes('left')) {
+    return <div className="w-20 h-2 bg-red-200 rounded-full"><div className="h-full w-1/4 bg-red-500 rounded-full"></div></div>;
+  }
+  if (tatStatus === 'Done') {
+    return <div className="w-20 h-2 bg-green-200 rounded-full"><div className="h-full w-full bg-green-500 rounded-full"></div></div>;
+  }
+  return <div className="w-20 h-2 bg-gray-200 rounded-full"><div className="h-full w-1/2 bg-gray-500 rounded-full"></div></div>;
+};
+
 export const TicketTable = () => {
   return (
     <div className="bg-white rounded-lg shadow-sm overflow-hidden">
-      <table className="min-w-full">
-        <thead>
-          <tr className="bg-gray-50 border-b">
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ticket ID</th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Priority</th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">TAT Status</th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Time Created</th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
-          </tr>
-        </thead>
-        <tbody className="bg-white divide-y divide-gray-200">
+      <Table>
+        <TableHeader>
+          <TableRow className="bg-gray-50">
+            <TableHead className="w-[100px]">Ticket ID</TableHead>
+            <TableHead className="w-[120px]">Priority</TableHead>
+            <TableHead>Title</TableHead>
+            <TableHead>Status</TableHead>
+            <TableHead>Assigned To</TableHead>
+            <TableHead>TAT Status</TableHead>
+            <TableHead>Time Created</TableHead>
+            <TableHead className="text-right">Action</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
           {tickets.map((ticket) => (
-            <tr key={ticket.id} className="hover:bg-gray-50">
-              <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{ticket.id}</td>
-              <td className="px-6 py-4 whitespace-nowrap">
-                <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getPriorityClass(ticket.priority)}`}>
+            <TableRow key={ticket.id} className="hover:bg-gray-50">
+              <TableCell className="font-medium">{ticket.id}</TableCell>
+              <TableCell>
+                <Badge className={getPriorityClass(ticket.priority)}>
                   {ticket.priority}
-                </span>
-              </td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{ticket.title}</td>
-              <td className="px-6 py-4 whitespace-nowrap">
-                <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusClass(ticket.status)}`}>
+                </Badge>
+              </TableCell>
+              <TableCell>{ticket.title}</TableCell>
+              <TableCell>
+                <Badge className={getStatusClass(ticket.status)}>
                   {ticket.status}
-                </span>
-              </td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{ticket.tatStatus}</td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{ticket.timeCreated}</td>
-              <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                </Badge>
+              </TableCell>
+              <TableCell>{ticket.assignedTo || "Unassigned"}</TableCell>
+              <TableCell>
+                <div className="flex items-center gap-2">
+                  {getTatStatusIndicator(ticket.tatStatus)}
+                  <span className="text-sm">{ticket.tatStatus}</span>
+                </div>
+              </TableCell>
+              <TableCell className="text-muted-foreground">{ticket.timeCreated}</TableCell>
+              <TableCell className="text-right">
                 <Button variant="outline" size="sm">VIEW</Button>
-              </td>
-            </tr>
+              </TableCell>
+            </TableRow>
           ))}
-        </tbody>
-      </table>
+        </TableBody>
+      </Table>
     </div>
   );
 };
