@@ -7,7 +7,7 @@ export const Navigation = () => {
   return (
     <nav className="flex items-center justify-between px-6 py-4 bg-white border-b">
       <div className="flex items-center gap-8">
-        <h1 className="text-xl font-semibold text-blue-600">BSC</h1>
+        <h1 className="text-xl font-semibold text-blue-600">Troopod</h1>
         <div className="hidden md:flex items-center space-x-6">
           <Link to="/" className="text-blue-600 font-medium">Dashboard</Link>
           <Link to="/projects" className="text-gray-600 hover:text-blue-600">Projects</Link>
