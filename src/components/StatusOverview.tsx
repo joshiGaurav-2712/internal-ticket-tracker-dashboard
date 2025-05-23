@@ -1,14 +1,10 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { StatusBarData } from "@/types";
 
-interface StatusBarProps {
-  label: string;
-  value: number;
-  maxValue: number;
-  color: string;
-}
+interface StatusBarProps extends StatusBarData {}
 
-const StatusBar = ({ label, value, maxValue, color }: StatusBarProps) => {
+const StatusBar: React.FC<StatusBarProps> = ({ label, value, maxValue, color }) => {
   const width = (value / maxValue) * 100;
   
   return (
@@ -27,8 +23,20 @@ const StatusBar = ({ label, value, maxValue, color }: StatusBarProps) => {
   );
 };
 
-export const StatusOverview = () => {
+export const StatusOverview: React.FC = () => {
   const total = 19;
+  
+  const statusData: StatusBarData[] = [
+    { label: "On Track Tasks", value: 12, maxValue: total, color: "bg-green-500" },
+    { label: "At Risk Tasks", value: 5, maxValue: total, color: "bg-yellow-500" },
+    { label: "Delayed Tasks", value: 2, maxValue: total, color: "bg-red-500" }
+  ];
+
+  const legendItems = [
+    { color: "bg-green-500", label: "On Track" },
+    { color: "bg-yellow-500", label: "At Risk" },
+    { color: "bg-red-500", label: "Delayed" }
+  ];
   
   return (
     <Card>
@@ -36,25 +44,19 @@ export const StatusOverview = () => {
         <div className="flex items-center justify-between">
           <CardTitle className="text-lg">TAT Status Overview</CardTitle>
           <div className="flex items-center gap-4">
-            <span className="flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-green-500"></span>
-              <span className="text-sm">On Track</span>
-            </span>
-            <span className="flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-yellow-500"></span>
-              <span className="text-sm">At Risk</span>
-            </span>
-            <span className="flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-red-500"></span>
-              <span className="text-sm">Delayed</span>
-            </span>
+            {legendItems.map((item, index) => (
+              <span key={index} className="flex items-center gap-2">
+                <span className={`w-2 h-2 rounded-full ${item.color}`}></span>
+                <span className="text-sm">{item.label}</span>
+              </span>
+            ))}
           </div>
         </div>
       </CardHeader>
       <CardContent>
-        <StatusBar label="On Track Tasks" value={12} maxValue={total} color="bg-green-500" />
-        <StatusBar label="At Risk Tasks" value={5} maxValue={total} color="bg-yellow-500" />
-        <StatusBar label="Delayed Tasks" value={2} maxValue={total} color="bg-red-500" />
+        {statusData.map((status, index) => (
+          <StatusBar key={index} {...status} />
+        ))}
       </CardContent>
     </Card>
   );

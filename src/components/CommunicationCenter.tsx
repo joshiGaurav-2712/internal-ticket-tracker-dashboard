@@ -2,14 +2,11 @@
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Calendar, MessageSquare } from "lucide-react";
+import { Update } from "@/types";
 
-interface UpdateProps {
-  title: string;
-  timestamp: string;
-  timeAgo: string;
-}
+interface UpdateProps extends Update {}
 
-const Update = ({ title, timestamp, timeAgo }: UpdateProps) => {
+const UpdateItem: React.FC<UpdateProps> = ({ title, timestamp, timeAgo }) => {
   return (
     <div className="mb-4 last:mb-0">
       <h4 className="text-sm font-medium text-gray-800">{title}</h4>
@@ -24,11 +21,16 @@ const Update = ({ title, timestamp, timeAgo }: UpdateProps) => {
 interface ActionButtonProps {
   icon: React.ReactNode;
   label: string;
+  onClick?: () => void;
 }
 
-const ActionButton = ({ icon, label }: ActionButtonProps) => {
+const ActionButton: React.FC<ActionButtonProps> = ({ icon, label, onClick }) => {
   return (
-    <Button variant="outline" className="flex flex-col items-center h-auto py-4 px-6 gap-2">
+    <Button 
+      variant="outline" 
+      className="flex flex-col items-center h-auto py-4 px-6 gap-2"
+      onClick={onClick}
+    >
       <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center text-blue-500">
         {icon}
       </div>
@@ -37,8 +39,8 @@ const ActionButton = ({ icon, label }: ActionButtonProps) => {
   );
 };
 
-export const CommunicationCenter = () => {
-  const updates = [
+export const CommunicationCenter: React.FC = () => {
+  const updates: Update[] = [
     {
       title: "Weekly progress meeting scheduled for April 10, 2025 at 2:00 PM",
       timestamp: "April 8, 2025",
@@ -51,6 +53,14 @@ export const CommunicationCenter = () => {
     }
   ];
 
+  const handleScheduleMeeting = (): void => {
+    console.log('Schedule meeting clicked');
+  };
+
+  const handleContactSupport = (): void => {
+    console.log('Contact support clicked');
+  };
+
   return (
     <Card>
       <CardHeader className="pb-2">
@@ -60,7 +70,7 @@ export const CommunicationCenter = () => {
         <div className="mb-6">
           <h3 className="text-sm font-medium mb-2 text-gray-700">Latest Updates</h3>
           {updates.map((update, index) => (
-            <Update
+            <UpdateItem
               key={index}
               title={update.title}
               timestamp={update.timestamp}
@@ -75,10 +85,12 @@ export const CommunicationCenter = () => {
             <ActionButton 
               icon={<Calendar className="w-4 h-4" />}
               label="Schedule Meeting"
+              onClick={handleScheduleMeeting}
             />
             <ActionButton 
               icon={<MessageSquare className="w-4 h-4" />}
               label="Contact Support"
+              onClick={handleContactSupport}
             />
           </div>
         </div>

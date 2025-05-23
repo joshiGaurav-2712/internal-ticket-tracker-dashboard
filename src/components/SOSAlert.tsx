@@ -2,7 +2,11 @@
 import { Button } from "@/components/ui/button";
 import { AlertTriangle } from "lucide-react";
 
-export const SOSAlert = () => {
+export const SOSAlert: React.FC = () => {
+  const handleViewSOSTasks = (): void => {
+    console.log('View SOS tasks clicked');
+  };
+
   return (
     <div className="bg-red-50 border border-red-100 rounded-lg p-4 flex items-center justify-between">
       <div className="flex items-center gap-3">
@@ -14,7 +18,12 @@ export const SOSAlert = () => {
           <p className="text-red-600 text-sm">2 critical tasks need your immediate response</p>
         </div>
       </div>
-      <Button className="bg-red-500 hover:bg-red-600">View SOS Tasks</Button>
+      <Button 
+        className="bg-red-500 hover:bg-red-600"
+        onClick={handleViewSOSTasks}
+      >
+        View SOS Tasks
+      </Button>
     </div>
   );
 };

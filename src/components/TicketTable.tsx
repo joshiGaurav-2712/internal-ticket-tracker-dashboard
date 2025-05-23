@@ -9,16 +9,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-
-interface Ticket {
-  id: string;
-  priority: string;
-  title: string;
-  status: string;
-  tatStatus: string;
-  timeCreated: string;
-  assignedTo?: string;
-}
+import { Ticket } from "@/types";
 
 const tickets: Ticket[] = [
   {
@@ -68,33 +59,26 @@ const tickets: Ticket[] = [
   }
 ];
 
-const getPriorityClass = (priority: string) => {
-  switch (priority.toLowerCase()) {
-    case 'sos':
-      return 'bg-red-100 text-red-800';
-    case 'high':
-      return 'bg-yellow-100 text-yellow-800';
-    case 'medium':
-      return 'bg-blue-100 text-blue-800';
-    default:
-      return 'bg-gray-100 text-gray-800';
-  }
+const getPriorityClass = (priority: Ticket['priority']): string => {
+  const classes = {
+    'SOS': 'bg-red-100 text-red-800',
+    'High': 'bg-yellow-100 text-yellow-800',
+    'Medium': 'bg-blue-100 text-blue-800',
+    'Low': 'bg-gray-100 text-gray-800'
+  };
+  return classes[priority];
 };
 
-const getStatusClass = (status: string) => {
-  switch (status.toLowerCase()) {
-    case 'completed':
-      return 'bg-green-100 text-green-800';
-    case 'in progress':
-      return 'bg-yellow-100 text-yellow-800';
-    case 'open':
-      return 'bg-blue-100 text-blue-800';
-    default:
-      return 'bg-gray-100 text-gray-800';
-  }
+const getStatusClass = (status: Ticket['status']): string => {
+  const classes = {
+    'Completed': 'bg-green-100 text-green-800',
+    'In Progress': 'bg-yellow-100 text-yellow-800',
+    'Open': 'bg-blue-100 text-blue-800'
+  };
+  return classes[status];
 };
 
-const getTatStatusIndicator = (tatStatus: string) => {
+const getTatStatusIndicator = (tatStatus: string): React.ReactNode => {
   if (tatStatus.includes('left')) {
     return <div className="w-20 h-2 bg-red-200 rounded-full"><div className="h-full w-1/4 bg-red-500 rounded-full"></div></div>;
   }
@@ -104,7 +88,7 @@ const getTatStatusIndicator = (tatStatus: string) => {
   return <div className="w-20 h-2 bg-gray-200 rounded-full"><div className="h-full w-1/2 bg-gray-500 rounded-full"></div></div>;
 };
 
-export const TicketTable = () => {
+export const TicketTable: React.FC = () => {
   return (
     <div className="bg-white rounded-lg shadow-sm overflow-hidden">
       <Table>
