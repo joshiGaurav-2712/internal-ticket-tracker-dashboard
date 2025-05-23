@@ -34,10 +34,10 @@ export const Navigation: React.FC = () => {
       <div className="flex items-center gap-8">
         <h1 className="text-xl font-semibold text-blue-600">Troopod</h1>
         <div className="hidden md:flex items-center space-x-6">
-          <NavLink to="/" isActive>Dashboard</NavLink>
+          {/* <NavLink to="/" isActive>Dashboard</NavLink>
           <NavLink to="/projects">Projects</NavLink>
           <NavLink to="/tickets">Tickets</NavLink>
-          <NavLink to="/reports">Reports</NavLink>
+          <NavLink to="/reports">Reports</NavLink> */}
         </div>
       </div>
       <div className="flex items-center gap-4">
