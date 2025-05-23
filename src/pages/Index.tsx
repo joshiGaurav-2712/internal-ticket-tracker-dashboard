@@ -5,9 +5,7 @@ import { StatusOverview } from "@/components/StatusOverview";
 import { SOSAlert } from "@/components/SOSAlert";
 import { TicketFilters } from "@/components/TicketFilters";
 import { TicketTable } from "@/components/TicketTable";
-import { ProjectHealth } from "@/components/ProjectHealth";
 import { LastUpdated } from "@/components/LastUpdated";
-import { TimelineMilestones } from "@/components/TimelineMilestones";
 import { CommunicationCenter } from "@/components/CommunicationCenter";
 
 const Index = () => {
@@ -27,13 +25,8 @@ const Index = () => {
           <SummaryCards />
         </div>
         
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-          <div className="lg:col-span-1">
-            <ProjectHealth />
-          </div>
-          <div className="lg:col-span-2">
-            <StatusOverview />
-          </div>
+        <div className="mb-8">
+          <StatusOverview />
         </div>
         
         <div className="mb-8">
@@ -46,13 +39,8 @@ const Index = () => {
           <TicketTable />
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-          <div className="lg:col-span-1">
-            <TimelineMilestones />
-          </div>
-          <div className="lg:col-span-1">
-            <CommunicationCenter />
-          </div>
+        <div className="mb-8">
+          <CommunicationCenter />
         </div>
       </div>
     </div>
