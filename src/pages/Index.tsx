@@ -226,6 +226,10 @@ const Index = () => {
     setEditingTicketId(null);
   };
 
+  const handleEditStart = (ticketId: string) => {
+    setEditingTicketId(ticketId);
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       <Navigation onCreateTicket={handleCreateTicket} />
@@ -265,6 +269,7 @@ const Index = () => {
             editingTicketId={editingTicketId}
             onTicketUpdate={handleTicketUpdate}
             onEditComplete={handleEditComplete}
+            onEditStart={handleEditStart}
           />
         </div>
 

@@ -1,3 +1,4 @@
+
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -18,6 +19,7 @@ interface TicketTableProps {
   editingTicketId?: string | null;
   onTicketUpdate?: (ticketId: string, updatedTicket: Partial<Ticket>) => void;
   onEditComplete?: () => void;
+  onEditStart?: (ticketId: string) => void;
 }
 
 const getPriorityClass = (priority: Ticket['priority']): string => {
@@ -80,7 +82,8 @@ export const TicketTable: React.FC<TicketTableProps> = ({
   onStatusChange, 
   editingTicketId,
   onTicketUpdate,
-  onEditComplete 
+  onEditComplete,
+  onEditStart 
 }) => {
   const [editingValues, setEditingValues] = useState<Partial<Ticket>>({});
 
@@ -106,6 +109,9 @@ export const TicketTable: React.FC<TicketTableProps> = ({
 
   const handleEditStart = (ticket: Ticket) => {
     setEditingValues(ticket);
+    if (onEditStart) {
+      onEditStart(ticket.id);
+    }
   };
 
   const handleEditSave = () => {
