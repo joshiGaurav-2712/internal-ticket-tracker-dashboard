@@ -222,6 +222,14 @@ const Index = () => {
     ));
   };
 
+  const handleTicketDelete = (ticketId: string) => {
+    setTickets(prev => prev.filter(ticket => ticket.id !== ticketId));
+    // If we're deleting the ticket that's currently being edited, clear the editing state
+    if (editingTicketId === ticketId) {
+      setEditingTicketId(null);
+    }
+  };
+
   const handleEditComplete = () => {
     setEditingTicketId(null);
   };
@@ -270,6 +278,7 @@ const Index = () => {
             onTicketUpdate={handleTicketUpdate}
             onEditComplete={handleEditComplete}
             onEditStart={handleEditStart}
+            onTicketDelete={handleTicketDelete}
           />
         </div>
 

@@ -1,4 +1,5 @@
 
+
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -11,7 +12,18 @@ import {
 } from "@/components/ui/table";
 import { Ticket } from "@/types";
 import { useState } from "react";
-import { Check, X, Edit } from "lucide-react";
+import { Check, X, Edit, Trash2 } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 interface TicketTableProps {
   tickets: Ticket[];
@@ -20,6 +32,7 @@ interface TicketTableProps {
   onTicketUpdate?: (ticketId: string, updatedTicket: Partial<Ticket>) => void;
   onEditComplete?: () => void;
   onEditStart?: (ticketId: string) => void;
+  onTicketDelete?: (ticketId: string) => void;
 }
 
 const getPriorityClass = (priority: Ticket['priority']): string => {
@@ -83,7 +96,8 @@ export const TicketTable: React.FC<TicketTableProps> = ({
   editingTicketId,
   onTicketUpdate,
   onEditComplete,
-  onEditStart 
+  onEditStart,
+  onTicketDelete
 }) => {
   const [editingValues, setEditingValues] = useState<Partial<Ticket>>({});
 
@@ -131,6 +145,12 @@ export const TicketTable: React.FC<TicketTableProps> = ({
     }
   };
 
+  const handleDelete = (ticketId: string) => {
+    if (onTicketDelete) {
+      onTicketDelete(ticketId);
+    }
+  };
+
   const isEditing = (ticketId: string) => editingTicketId === ticketId;
 
   if (tickets.length === 0) {
@@ -159,7 +179,18 @@ export const TicketTable: React.FC<TicketTableProps> = ({
         <TableBody>
           {tickets.map((ticket) => (
             <TableRow key={ticket.id} className="hover:bg-gray-50">
-              <TableCell className="font-medium">{ticket.id}</TableCell>
+              <TableCell className="font-medium">
+                {isEditing(ticket.id) ? (
+                  <input
+                    type="text"
+                    value={editingValues.id || ticket.id}
+                    onChange={(e) => setEditingValues(prev => ({ ...prev, id: e.target.value }))}
+                    className="border rounded px-2 py-1 w-full text-sm"
+                  />
+                ) : (
+                  ticket.id
+                )}
+              </TableCell>
               <TableCell>
                 {isEditing(ticket.id) ? (
                   <select 
@@ -254,6 +285,34 @@ export const TicketTable: React.FC<TicketTableProps> = ({
                     >
                       <Edit className="w-4 h-4" />
                     </Button>
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          className="text-red-600 hover:text-red-700"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Delete Ticket</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            Are you sure you want to delete ticket {ticket.id}? This action cannot be undone.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancel</AlertDialogCancel>
+                          <AlertDialogAction 
+                            onClick={() => handleDelete(ticket.id)}
+                            className="bg-red-600 hover:bg-red-700"
+                          >
+                            Delete
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
                   </div>
                 )}
               </TableCell>
