@@ -11,53 +11,10 @@ import {
 } from "@/components/ui/table";
 import { Ticket } from "@/types";
 
-const tickets: Ticket[] = [
-  {
-    id: "#54",
-    priority: "SOS",
-    title: "API Integration Fix",
-    status: "In Progress",
-    tatStatus: "2h left",
-    timeCreated: "4 hours ago",
-    assignedTo: "David Thompson"
-  },
-  {
-    id: "#55",
-    priority: "SOS",
-    title: "Payment Gateway Error",
-    status: "Open",
-    tatStatus: "3h left",
-    timeCreated: "6 hours ago",
-    assignedTo: "Sophia Wilson"
-  },
-  {
-    id: "#53",
-    priority: "Medium",
-    title: "Page Optimization",
-    status: "Completed",
-    tatStatus: "Done",
-    timeCreated: "1 day, 16 hours ago",
-    assignedTo: "James Rodriguez"
-  },
-  {
-    id: "#52",
-    priority: "High",
-    title: "Meet with kreo",
-    status: "Completed",
-    tatStatus: "Done",
-    timeCreated: "5 days, 23 hours ago",
-    assignedTo: "Emily Johnson"
-  },
-  {
-    id: "#51",
-    priority: "Low",
-    title: "Protouch Meet",
-    status: "Completed",
-    tatStatus: "Done",
-    timeCreated: "5 days, 23 hours ago",
-    assignedTo: "Michael Chen"
-  }
-];
+interface TicketTableProps {
+  tickets: Ticket[];
+  onStatusChange: (ticketId: string, newStatus: Ticket['status']) => void;
+}
 
 const getPriorityClass = (priority: Ticket['priority']): string => {
   const classes = {
@@ -80,15 +37,69 @@ const getStatusClass = (status: Ticket['status']): string => {
 
 const getTatStatusIndicator = (tatStatus: string): React.ReactNode => {
   if (tatStatus.includes('left')) {
-    return <div className="w-20 h-2 bg-red-200 rounded-full"><div className="h-full w-1/4 bg-red-500 rounded-full"></div></div>;
+    const timeLeft = tatStatus.toLowerCase();
+    let progress = 0.25; // default low progress
+    
+    if (timeLeft.includes('1h') || timeLeft.includes('30min')) {
+      progress = 0.1; // very urgent
+    } else if (timeLeft.includes('2h') || timeLeft.includes('3h')) {
+      progress = 0.3; // urgent
+    } else if (timeLeft.includes('day')) {
+      progress = 0.7; // moderate
+    }
+    
+    return (
+      <div className="w-20 h-2 bg-red-200 rounded-full">
+        <div 
+          className="h-full bg-red-500 rounded-full" 
+          style={{ width: `${progress * 100}%` }}
+        ></div>
+      </div>
+    );
   }
   if (tatStatus === 'Done') {
-    return <div className="w-20 h-2 bg-green-200 rounded-full"><div className="h-full w-full bg-green-500 rounded-full"></div></div>;
+    return (
+      <div className="w-20 h-2 bg-green-200 rounded-full">
+        <div className="h-full w-full bg-green-500 rounded-full"></div>
+      </div>
+    );
   }
-  return <div className="w-20 h-2 bg-gray-200 rounded-full"><div className="h-full w-1/2 bg-gray-500 rounded-full"></div></div>;
+  return (
+    <div className="w-20 h-2 bg-gray-200 rounded-full">
+      <div className="h-full w-1/2 bg-gray-500 rounded-full"></div>
+    </div>
+  );
 };
 
-export const TicketTable: React.FC = () => {
+export const TicketTable: React.FC<TicketTableProps> = ({ tickets, onStatusChange }) => {
+  const handleStatusToggle = (ticket: Ticket) => {
+    let newStatus: Ticket['status'];
+    
+    switch (ticket.status) {
+      case 'Open':
+        newStatus = 'In Progress';
+        break;
+      case 'In Progress':
+        newStatus = 'Completed';
+        break;
+      case 'Completed':
+        newStatus = 'Open';
+        break;
+      default:
+        newStatus = 'Open';
+    }
+    
+    onStatusChange(ticket.id, newStatus);
+  };
+
+  if (tickets.length === 0) {
+    return (
+      <div className="bg-white rounded-lg shadow-sm p-8 text-center">
+        <p className="text-gray-500">No tickets found matching your filters.</p>
+      </div>
+    );
+  }
+
   return (
     <div className="bg-white rounded-lg shadow-sm overflow-hidden">
       <Table>
@@ -115,7 +126,10 @@ export const TicketTable: React.FC = () => {
               </TableCell>
               <TableCell>{ticket.title}</TableCell>
               <TableCell>
-                <Badge className={getStatusClass(ticket.status)}>
+                <Badge 
+                  className={`${getStatusClass(ticket.status)} cursor-pointer`}
+                  onClick={() => handleStatusToggle(ticket)}
+                >
                   {ticket.status}
                 </Badge>
               </TableCell>
@@ -128,7 +142,13 @@ export const TicketTable: React.FC = () => {
               </TableCell>
               <TableCell className="text-muted-foreground">{ticket.timeCreated}</TableCell>
               <TableCell className="text-right">
-                <Button variant="outline" size="sm">VIEW</Button>
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => console.log('View ticket:', ticket.id)}
+                >
+                  VIEW
+                </Button>
               </TableCell>
             </TableRow>
           ))}

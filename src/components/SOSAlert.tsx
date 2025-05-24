@@ -2,9 +2,14 @@
 import { Button } from "@/components/ui/button";
 import { AlertTriangle } from "lucide-react";
 
-export const SOSAlert: React.FC = () => {
+interface SOSAlertProps {
+  count: number;
+}
+
+export const SOSAlert: React.FC<SOSAlertProps> = ({ count }) => {
   const handleViewSOSTasks = (): void => {
     console.log('View SOS tasks clicked');
+    // In a real app, this would navigate to SOS tasks or show a modal
   };
 
   return (
@@ -15,7 +20,7 @@ export const SOSAlert: React.FC = () => {
         </div>
         <div>
           <h3 className="text-red-700 font-medium">SOS Tasks Requiring Immediate Attention</h3>
-          <p className="text-red-600 text-sm">2 critical tasks need your immediate response</p>
+          <p className="text-red-600 text-sm">{count} critical task{count !== 1 ? 's' : ''} need{count === 1 ? 's' : ''} your immediate response</p>
         </div>
       </div>
       <Button 

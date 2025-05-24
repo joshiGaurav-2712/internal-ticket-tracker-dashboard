@@ -4,8 +4,17 @@ import { StatusBarData } from "@/types";
 
 interface StatusBarProps extends StatusBarData {}
 
+interface StatusOverviewProps {
+  tatStats: {
+    total: number;
+    onTrack: number;
+    atRisk: number;
+    delayed: number;
+  };
+}
+
 const StatusBar: React.FC<StatusBarProps> = ({ label, value, maxValue, color }) => {
-  const width = (value / maxValue) * 100;
+  const width = maxValue > 0 ? (value / maxValue) * 100 : 0;
   
   return (
     <div className="mb-6">
@@ -23,13 +32,13 @@ const StatusBar: React.FC<StatusBarProps> = ({ label, value, maxValue, color }) 
   );
 };
 
-export const StatusOverview: React.FC = () => {
-  const total = 19;
+export const StatusOverview: React.FC<StatusOverviewProps> = ({ tatStats }) => {
+  const { total, onTrack, atRisk, delayed } = tatStats;
   
   const statusData: StatusBarData[] = [
-    { label: "On Track Tasks", value: 12, maxValue: total, color: "bg-green-500" },
-    { label: "At Risk Tasks", value: 5, maxValue: total, color: "bg-yellow-500" },
-    { label: "Delayed Tasks", value: 2, maxValue: total, color: "bg-red-500" }
+    { label: "On Track Tasks", value: onTrack, maxValue: total, color: "bg-green-500" },
+    { label: "At Risk Tasks", value: atRisk, maxValue: total, color: "bg-yellow-500" },
+    { label: "Delayed Tasks", value: delayed, maxValue: total, color: "bg-red-500" }
   ];
 
   const legendItems = [

@@ -9,6 +9,10 @@ interface NavLinkProps {
   isActive?: boolean;
 }
 
+interface NavigationProps {
+  onCreateTicket: () => void;
+}
+
 const NavLink: React.FC<NavLinkProps> = ({ to, children, isActive = false }) => (
   <Link 
     to={to} 
@@ -20,11 +24,7 @@ const NavLink: React.FC<NavLinkProps> = ({ to, children, isActive = false }) => 
   </Link>
 );
 
-export const Navigation: React.FC = () => {
-  const handleCreateTicket = (): void => {
-    console.log('Create ticket clicked');
-  };
-
+export const Navigation: React.FC<NavigationProps> = ({ onCreateTicket }) => {
   const handleUserMenu = (): void => {
     console.log('User menu clicked');
   };
@@ -43,7 +43,7 @@ export const Navigation: React.FC = () => {
       <div className="flex items-center gap-4">
         <Button 
           className="bg-blue-500 hover:bg-blue-600"
-          onClick={handleCreateTicket}
+          onClick={onCreateTicket}
         >
           <Plus className="w-4 h-4 mr-2" />
           Create New Ticket

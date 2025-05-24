@@ -2,29 +2,54 @@
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Search } from "lucide-react";
-import { useState } from "react";
 
 type TicketStatus = 'all' | 'open' | 'in-progress' | 'completed';
 type Priority = 'all' | 'low' | 'medium' | 'high' | 'sos';
 type TatStatus = 'all' | 'on-track' | 'at-risk' | 'delayed';
 
-export const TicketFilters: React.FC = () => {
-  const [searchText, setSearchText] = useState<string>('');
-  const [ticketStatus, setTicketStatus] = useState<TicketStatus>('all');
-  const [priority, setPriority] = useState<Priority>('all');
-  const [tatStatus, setTatStatus] = useState<TatStatus>('all');
+interface FilterState {
+  searchText: string;
+  ticketStatus: TicketStatus;
+  priority: Priority;
+  tatStatus: TatStatus;
+}
 
+interface TicketFiltersProps {
+  filters: FilterState;
+  onFilterChange: (filters: Partial<FilterState>) => void;
+  ticketCount: number;
+}
+
+export const TicketFilters: React.FC<TicketFiltersProps> = ({ 
+  filters, 
+  onFilterChange, 
+  ticketCount 
+}) => {
   const handleFilter = (): void => {
-    console.log('Filter applied:', { searchText, ticketStatus, priority, tatStatus });
+    console.log('Filter applied:', filters, `Showing ${ticketCount} tickets`);
   };
+
+  const handleClearFilters = (): void => {
+    onFilterChange({
+      searchText: '',
+      ticketStatus: 'all',
+      priority: 'all',
+      tatStatus: 'all'
+    });
+  };
+
+  const hasActiveFilters = filters.searchText || 
+    filters.ticketStatus !== 'all' || 
+    filters.priority !== 'all' || 
+    filters.tatStatus !== 'all';
 
   return (
     <div className="flex flex-col md:flex-row gap-4 mb-6">
       <div className="flex-1 flex flex-wrap gap-3">
         <select 
           className="border rounded-md px-3 py-2 bg-white text-sm"
-          value={ticketStatus}
-          onChange={(e) => setTicketStatus(e.target.value as TicketStatus)}
+          value={filters.ticketStatus}
+          onChange={(e) => onFilterChange({ ticketStatus: e.target.value as TicketStatus })}
         >
           <option value="all">Ticket Status</option>
           <option value="open">Open</option>
@@ -34,8 +59,8 @@ export const TicketFilters: React.FC = () => {
         
         <select 
           className="border rounded-md px-3 py-2 bg-white text-sm"
-          value={priority}
-          onChange={(e) => setPriority(e.target.value as Priority)}
+          value={filters.priority}
+          onChange={(e) => onFilterChange({ priority: e.target.value as Priority })}
         >
           <option value="all">Priority</option>
           <option value="low">Low</option>
@@ -46,14 +71,24 @@ export const TicketFilters: React.FC = () => {
         
         <select 
           className="border rounded-md px-3 py-2 bg-white text-sm"
-          value={tatStatus}
-          onChange={(e) => setTatStatus(e.target.value as TatStatus)}
+          value={filters.tatStatus}
+          onChange={(e) => onFilterChange({ tatStatus: e.target.value as TatStatus })}
         >
           <option value="all">TAT Status</option>
           <option value="on-track">On Track</option>
           <option value="at-risk">At Risk</option>
           <option value="delayed">Delayed</option>
         </select>
+
+        {hasActiveFilters && (
+          <Button 
+            variant="outline" 
+            onClick={handleClearFilters}
+            className="text-sm"
+          >
+            Clear Filters
+          </Button>
+        )}
       </div>
       
       <div className="flex gap-2 w-full md:w-auto">
@@ -63,12 +98,12 @@ export const TicketFilters: React.FC = () => {
             type="text" 
             placeholder="Search by text" 
             className="w-full pl-9"
-            value={searchText}
-            onChange={(e) => setSearchText(e.target.value)}
+            value={filters.searchText}
+            onChange={(e) => onFilterChange({ searchText: e.target.value })}
           />
         </div>
         <Button className="whitespace-nowrap" onClick={handleFilter}>
-          FILTER
+          FILTER ({ticketCount})
         </Button>
       </div>
     </div>
