@@ -1,4 +1,3 @@
-
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -10,10 +9,15 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Ticket } from "@/types";
+import { useState } from "react";
+import { Check, X, Edit } from "lucide-react";
 
 interface TicketTableProps {
   tickets: Ticket[];
   onStatusChange: (ticketId: string, newStatus: Ticket['status']) => void;
+  editingTicketId?: string | null;
+  onTicketUpdate?: (ticketId: string, updatedTicket: Partial<Ticket>) => void;
+  onEditComplete?: () => void;
 }
 
 const getPriorityClass = (priority: Ticket['priority']): string => {
@@ -71,7 +75,15 @@ const getTatStatusIndicator = (tatStatus: string): React.ReactNode => {
   );
 };
 
-export const TicketTable: React.FC<TicketTableProps> = ({ tickets, onStatusChange }) => {
+export const TicketTable: React.FC<TicketTableProps> = ({ 
+  tickets, 
+  onStatusChange, 
+  editingTicketId,
+  onTicketUpdate,
+  onEditComplete 
+}) => {
+  const [editingValues, setEditingValues] = useState<Partial<Ticket>>({});
+
   const handleStatusToggle = (ticket: Ticket) => {
     let newStatus: Ticket['status'];
     
@@ -91,6 +103,29 @@ export const TicketTable: React.FC<TicketTableProps> = ({ tickets, onStatusChang
     
     onStatusChange(ticket.id, newStatus);
   };
+
+  const handleEditStart = (ticket: Ticket) => {
+    setEditingValues(ticket);
+  };
+
+  const handleEditSave = () => {
+    if (editingTicketId && onTicketUpdate) {
+      onTicketUpdate(editingTicketId, editingValues);
+    }
+    setEditingValues({});
+    if (onEditComplete) {
+      onEditComplete();
+    }
+  };
+
+  const handleEditCancel = () => {
+    setEditingValues({});
+    if (onEditComplete) {
+      onEditComplete();
+    }
+  };
+
+  const isEditing = (ticketId: string) => editingTicketId === ticketId;
 
   if (tickets.length === 0) {
     return (
@@ -120,20 +155,56 @@ export const TicketTable: React.FC<TicketTableProps> = ({ tickets, onStatusChang
             <TableRow key={ticket.id} className="hover:bg-gray-50">
               <TableCell className="font-medium">{ticket.id}</TableCell>
               <TableCell>
-                <Badge className={getPriorityClass(ticket.priority)}>
-                  {ticket.priority}
-                </Badge>
+                {isEditing(ticket.id) ? (
+                  <select 
+                    value={editingValues.priority || ticket.priority}
+                    onChange={(e) => setEditingValues(prev => ({ ...prev, priority: e.target.value as Ticket['priority'] }))}
+                    className="border rounded px-2 py-1 text-sm"
+                  >
+                    <option value="Low">Low</option>
+                    <option value="Medium">Medium</option>
+                    <option value="High">High</option>
+                    <option value="SOS">SOS</option>
+                  </select>
+                ) : (
+                  <Badge className={getPriorityClass(ticket.priority)}>
+                    {ticket.priority}
+                  </Badge>
+                )}
               </TableCell>
-              <TableCell>{ticket.title}</TableCell>
+              <TableCell>
+                {isEditing(ticket.id) ? (
+                  <input
+                    type="text"
+                    value={editingValues.title || ticket.title}
+                    onChange={(e) => setEditingValues(prev => ({ ...prev, title: e.target.value }))}
+                    className="border rounded px-2 py-1 w-full"
+                  />
+                ) : (
+                  ticket.title
+                )}
+              </TableCell>
               <TableCell>
                 <Badge 
                   className={`${getStatusClass(ticket.status)} cursor-pointer`}
-                  onClick={() => handleStatusToggle(ticket)}
+                  onClick={() => !isEditing(ticket.id) && handleStatusToggle(ticket)}
                 >
                   {ticket.status}
                 </Badge>
               </TableCell>
-              <TableCell>{ticket.assignedTo || "Unassigned"}</TableCell>
+              <TableCell>
+                {isEditing(ticket.id) ? (
+                  <input
+                    type="text"
+                    value={editingValues.assignedTo || ticket.assignedTo || ""}
+                    onChange={(e) => setEditingValues(prev => ({ ...prev, assignedTo: e.target.value }))}
+                    className="border rounded px-2 py-1 w-full"
+                    placeholder="Unassigned"
+                  />
+                ) : (
+                  ticket.assignedTo || "Unassigned"
+                )}
+              </TableCell>
               <TableCell>
                 <div className="flex items-center gap-2">
                   {getTatStatusIndicator(ticket.tatStatus)}
@@ -142,13 +213,43 @@ export const TicketTable: React.FC<TicketTableProps> = ({ tickets, onStatusChang
               </TableCell>
               <TableCell className="text-muted-foreground">{ticket.timeCreated}</TableCell>
               <TableCell className="text-right">
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  onClick={() => console.log('View ticket:', ticket.id)}
-                >
-                  VIEW
-                </Button>
+                {isEditing(ticket.id) ? (
+                  <div className="flex gap-1">
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={handleEditSave}
+                      className="text-green-600 hover:text-green-700"
+                    >
+                      <Check className="w-4 h-4" />
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={handleEditCancel}
+                      className="text-red-600 hover:text-red-700"
+                    >
+                      <X className="w-4 h-4" />
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="flex gap-1">
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => console.log('View ticket:', ticket.id)}
+                    >
+                      VIEW
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => handleEditStart(ticket)}
+                    >
+                      <Edit className="w-4 h-4" />
+                    </Button>
+                  </div>
+                )}
               </TableCell>
             </TableRow>
           ))}

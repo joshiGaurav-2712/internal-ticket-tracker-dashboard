@@ -90,6 +90,7 @@ interface FilterState {
 
 const Index = () => {
   const [tickets, setTickets] = useState<Ticket[]>(dummyTickets);
+  const [editingTicketId, setEditingTicketId] = useState<string | null>(null);
   const [filters, setFilters] = useState<FilterState>({
     searchText: '',
     ticketStatus: 'all',
@@ -191,8 +192,9 @@ const Index = () => {
   };
 
   const handleCreateTicket = () => {
+    const newTicketId = `#${58 + tickets.length}`;
     const newTicket: Ticket = {
-      id: `#${58 + tickets.length}`,
+      id: newTicketId,
       priority: 'Medium',
       title: 'New Ticket',
       status: 'Open',
@@ -201,6 +203,7 @@ const Index = () => {
       assignedTo: 'Unassigned'
     };
     setTickets(prev => [newTicket, ...prev]);
+    setEditingTicketId(newTicketId); // Make the new ticket editable immediately
   };
 
   const handleTicketStatusChange = (ticketId: string, newStatus: Ticket['status']) => {
@@ -209,6 +212,18 @@ const Index = () => {
         ? { ...ticket, status: newStatus, tatStatus: newStatus === 'Completed' ? 'Done' : ticket.tatStatus }
         : ticket
     ));
+  };
+
+  const handleTicketUpdate = (ticketId: string, updatedTicket: Partial<Ticket>) => {
+    setTickets(prev => prev.map(ticket => 
+      ticket.id === ticketId 
+        ? { ...ticket, ...updatedTicket }
+        : ticket
+    ));
+  };
+
+  const handleEditComplete = () => {
+    setEditingTicketId(null);
   };
 
   return (
@@ -247,6 +262,9 @@ const Index = () => {
           <TicketTable 
             tickets={filteredTickets}
             onStatusChange={handleTicketStatusChange}
+            editingTicketId={editingTicketId}
+            onTicketUpdate={handleTicketUpdate}
+            onEditComplete={handleEditComplete}
           />
         </div>
 
