@@ -8,9 +8,10 @@ import { TicketFilters } from "@/components/TicketFilters";
 import { TicketTable } from "@/components/TicketTable";
 import { LastUpdated } from "@/components/LastUpdated";
 import { CommunicationCenter } from "@/components/CommunicationCenter";
+import { TicketCreationModal } from "@/components/TicketCreationModal";
 import { Ticket } from "@/types";
 
-// Dummy ticket data
+// Updated dummy ticket data with new fields
 const dummyTickets: Ticket[] = [
   {
     id: "#54",
@@ -19,7 +20,9 @@ const dummyTickets: Ticket[] = [
     status: "In Progress",
     tatStatus: "2h left",
     timeCreated: "4 hours ago",
-    assignedTo: "David Thompson"
+    assignedTo: "David Thompson",
+    brandName: "TechCorp",
+    timeTaken: "2h"
   },
   {
     id: "#55",
@@ -28,7 +31,9 @@ const dummyTickets: Ticket[] = [
     status: "Open",
     tatStatus: "3h left",
     timeCreated: "6 hours ago",
-    assignedTo: "Sophia Wilson"
+    assignedTo: "Sophia Wilson",
+    brandName: "FinanceHub",
+    timeTaken: "1h"
   },
   {
     id: "#53",
@@ -37,7 +42,9 @@ const dummyTickets: Ticket[] = [
     status: "Completed",
     tatStatus: "Done",
     timeCreated: "1 day, 16 hours ago",
-    assignedTo: "James Rodriguez"
+    assignedTo: "James Rodriguez",
+    brandName: "WebSolutions",
+    timeTaken: "8h"
   },
   {
     id: "#52",
@@ -46,7 +53,9 @@ const dummyTickets: Ticket[] = [
     status: "Completed",
     tatStatus: "Done",
     timeCreated: "5 days, 23 hours ago",
-    assignedTo: "Emily Johnson"
+    assignedTo: "Emily Johnson",
+    brandName: "Kreo Inc",
+    timeTaken: "3h"
   },
   {
     id: "#51",
@@ -55,7 +64,9 @@ const dummyTickets: Ticket[] = [
     status: "Completed",
     tatStatus: "Done",
     timeCreated: "5 days, 23 hours ago",
-    assignedTo: "Michael Chen"
+    assignedTo: "Michael Chen",
+    brandName: "Protouch",
+    timeTaken: "2h"
   },
   {
     id: "#56",
@@ -64,7 +75,9 @@ const dummyTickets: Ticket[] = [
     status: "Open",
     tatStatus: "1 day left",
     timeCreated: "2 hours ago",
-    assignedTo: "Alex Smith"
+    assignedTo: "Alex Smith",
+    brandName: "DataFlow",
+    timeTaken: "0h"
   },
   {
     id: "#57",
@@ -73,7 +86,9 @@ const dummyTickets: Ticket[] = [
     status: "In Progress",
     tatStatus: "5h left",
     timeCreated: "1 day ago",
-    assignedTo: "Sarah Johnson"
+    assignedTo: "Sarah Johnson",
+    brandName: "DesignCo",
+    timeTaken: "4h"
   }
 ];
 
@@ -91,6 +106,9 @@ interface FilterState {
 const Index = () => {
   const [tickets, setTickets] = useState<Ticket[]>(dummyTickets);
   const [editingTicketId, setEditingTicketId] = useState<string | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [sortField, setSortField] = useState<string>('');
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
   const [filters, setFilters] = useState<FilterState>({
     searchText: '',
     ticketStatus: 'all',
@@ -98,13 +116,14 @@ const Index = () => {
     tatStatus: 'all'
   });
 
-  // Filter tickets based on current filters
-  const filteredTickets = useMemo(() => {
-    return tickets.filter(ticket => {
+  // Filter and sort tickets
+  const filteredAndSortedTickets = useMemo(() => {
+    let filtered = tickets.filter(ticket => {
       // Search text filter
       if (filters.searchText && !ticket.title.toLowerCase().includes(filters.searchText.toLowerCase()) && 
           !ticket.id.toLowerCase().includes(filters.searchText.toLowerCase()) &&
-          !ticket.assignedTo?.toLowerCase().includes(filters.searchText.toLowerCase())) {
+          !ticket.assignedTo?.toLowerCase().includes(filters.searchText.toLowerCase()) &&
+          !ticket.brandName?.toLowerCase().includes(filters.searchText.toLowerCase())) {
         return false;
       }
 
@@ -148,7 +167,28 @@ const Index = () => {
 
       return true;
     });
-  }, [tickets, filters]);
+
+    // Sort tickets
+    if (sortField) {
+      filtered.sort((a, b) => {
+        let aValue = a[sortField as keyof Ticket] || '';
+        let bValue = b[sortField as keyof Ticket] || '';
+        
+        if (typeof aValue === 'string' && typeof bValue === 'string') {
+          aValue = aValue.toLowerCase();
+          bValue = bValue.toLowerCase();
+        }
+        
+        if (sortDirection === 'asc') {
+          return aValue < bValue ? -1 : aValue > bValue ? 1 : 0;
+        } else {
+          return aValue > bValue ? -1 : aValue < bValue ? 1 : 0;
+        }
+      });
+    }
+
+    return filtered;
+  }, [tickets, filters, sortField, sortDirection]);
 
   // Calculate summary statistics
   const summaryStats = useMemo(() => {
@@ -192,24 +232,30 @@ const Index = () => {
   };
 
   const handleCreateTicket = () => {
+    setIsModalOpen(true);
+  };
+
+  const handleCreateTicketFromModal = (ticketData: Omit<Ticket, 'id'>) => {
     const newTicketId = `#${58 + tickets.length}`;
     const newTicket: Ticket = {
       id: newTicketId,
-      priority: 'Medium',
-      title: 'New Ticket',
-      status: 'Open',
-      tatStatus: '2 days left',
-      timeCreated: 'Just now',
-      assignedTo: 'Unassigned'
+      ...ticketData
     };
     setTickets(prev => [newTicket, ...prev]);
-    setEditingTicketId(newTicketId); // Make the new ticket editable immediately
   };
 
   const handleTicketStatusChange = (ticketId: string, newStatus: Ticket['status']) => {
     setTickets(prev => prev.map(ticket => 
       ticket.id === ticketId 
         ? { ...ticket, status: newStatus, tatStatus: newStatus === 'Completed' ? 'Done' : ticket.tatStatus }
+        : ticket
+    ));
+  };
+
+  const handleTicketPriorityChange = (ticketId: string, newPriority: Ticket['priority']) => {
+    setTickets(prev => prev.map(ticket => 
+      ticket.id === ticketId 
+        ? { ...ticket, priority: newPriority }
         : ticket
     ));
   };
@@ -236,6 +282,15 @@ const Index = () => {
 
   const handleEditStart = (ticketId: string) => {
     setEditingTicketId(ticketId);
+  };
+
+  const handleSort = (field: string) => {
+    if (sortField === field) {
+      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortField(field);
+      setSortDirection('asc');
+    }
   };
 
   return (
@@ -269,16 +324,20 @@ const Index = () => {
           <TicketFilters 
             filters={filters}
             onFilterChange={handleFilterChange}
-            ticketCount={filteredTickets.length}
+            ticketCount={filteredAndSortedTickets.length}
           />
           <TicketTable 
-            tickets={filteredTickets}
+            tickets={filteredAndSortedTickets}
             onStatusChange={handleTicketStatusChange}
+            onPriorityChange={handleTicketPriorityChange}
             editingTicketId={editingTicketId}
             onTicketUpdate={handleTicketUpdate}
             onEditComplete={handleEditComplete}
             onEditStart={handleEditStart}
             onTicketDelete={handleTicketDelete}
+            onSort={handleSort}
+            sortField={sortField}
+            sortDirection={sortDirection}
           />
         </div>
 
@@ -286,6 +345,12 @@ const Index = () => {
           <CommunicationCenter />
         </div>
       </div>
+
+      <TicketCreationModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onCreateTicket={handleCreateTicketFromModal}
+      />
     </div>
   );
 };

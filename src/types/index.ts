@@ -1,4 +1,3 @@
-
 export interface Ticket {
   id: string;
   priority: 'SOS' | 'High' | 'Medium' | 'Low';
@@ -7,6 +6,8 @@ export interface Ticket {
   tatStatus: string;
   timeCreated: string;
   assignedTo?: string;
+  brandName?: string;
+  timeTaken?: string;
 }
 
 export interface Update {

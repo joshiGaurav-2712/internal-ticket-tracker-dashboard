@@ -1,5 +1,4 @@
 
-
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -10,9 +9,16 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Ticket } from "@/types";
 import { useState } from "react";
-import { Check, X, Edit, Trash2 } from "lucide-react";
+import { Check, X, Edit, Trash2, ChevronUp, ChevronDown } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -28,11 +34,15 @@ import {
 interface TicketTableProps {
   tickets: Ticket[];
   onStatusChange: (ticketId: string, newStatus: Ticket['status']) => void;
+  onPriorityChange?: (ticketId: string, newPriority: Ticket['priority']) => void;
   editingTicketId?: string | null;
   onTicketUpdate?: (ticketId: string, updatedTicket: Partial<Ticket>) => void;
   onEditComplete?: () => void;
   onEditStart?: (ticketId: string) => void;
   onTicketDelete?: (ticketId: string) => void;
+  onSort?: (field: string) => void;
+  sortField?: string;
+  sortDirection?: 'asc' | 'desc';
 }
 
 const getPriorityClass = (priority: Ticket['priority']): string => {
@@ -92,33 +102,27 @@ const getTatStatusIndicator = (tatStatus: string): React.ReactNode => {
 
 export const TicketTable: React.FC<TicketTableProps> = ({ 
   tickets, 
-  onStatusChange, 
+  onStatusChange,
+  onPriorityChange,
   editingTicketId,
   onTicketUpdate,
   onEditComplete,
   onEditStart,
-  onTicketDelete
+  onTicketDelete,
+  onSort,
+  sortField,
+  sortDirection
 }) => {
   const [editingValues, setEditingValues] = useState<Partial<Ticket>>({});
 
-  const handleStatusToggle = (ticket: Ticket) => {
-    let newStatus: Ticket['status'];
-    
-    switch (ticket.status) {
-      case 'Open':
-        newStatus = 'In Progress';
-        break;
-      case 'In Progress':
-        newStatus = 'Completed';
-        break;
-      case 'Completed':
-        newStatus = 'Open';
-        break;
-      default:
-        newStatus = 'Open';
+  const handleStatusChange = (ticketId: string, newStatus: Ticket['status']) => {
+    onStatusChange(ticketId, newStatus);
+  };
+
+  const handlePriorityChange = (ticketId: string, newPriority: Ticket['priority']) => {
+    if (onPriorityChange) {
+      onPriorityChange(ticketId, newPriority);
     }
-    
-    onStatusChange(ticket.id, newStatus);
   };
 
   const handleEditStart = (ticket: Ticket) => {
@@ -151,7 +155,22 @@ export const TicketTable: React.FC<TicketTableProps> = ({
     }
   };
 
+  const handleSort = (field: string) => {
+    if (onSort) {
+      onSort(field);
+    }
+  };
+
   const isEditing = (ticketId: string) => editingTicketId === ticketId;
+
+  const SortIcon = ({ field }: { field: string }) => {
+    if (sortField !== field) {
+      return <ChevronUp className="w-4 h-4 opacity-30" />;
+    }
+    return sortDirection === 'asc' ? 
+      <ChevronUp className="w-4 h-4" /> : 
+      <ChevronDown className="w-4 h-4" />;
+  };
 
   if (tickets.length === 0) {
     return (
@@ -167,11 +186,21 @@ export const TicketTable: React.FC<TicketTableProps> = ({
         <TableHeader>
           <TableRow className="bg-gray-50">
             <TableHead className="w-[100px]">Ticket ID</TableHead>
+            <TableHead 
+              className="w-[120px] cursor-pointer hover:bg-gray-100"
+              onClick={() => handleSort('brandName')}
+            >
+              <div className="flex items-center gap-1">
+                Brand Name
+                <SortIcon field="brandName" />
+              </div>
+            </TableHead>
             <TableHead className="w-[120px]">Priority</TableHead>
             <TableHead>Title</TableHead>
             <TableHead>Status</TableHead>
             <TableHead>Assigned To</TableHead>
             <TableHead>TAT Status</TableHead>
+            <TableHead>Time Taken</TableHead>
             <TableHead>Time Created</TableHead>
             <TableHead className="text-right">Action</TableHead>
           </TableRow>
@@ -193,6 +222,19 @@ export const TicketTable: React.FC<TicketTableProps> = ({
               </TableCell>
               <TableCell>
                 {isEditing(ticket.id) ? (
+                  <input
+                    type="text"
+                    value={editingValues.brandName || ticket.brandName || ""}
+                    onChange={(e) => setEditingValues(prev => ({ ...prev, brandName: e.target.value }))}
+                    className="border rounded px-2 py-1 w-full text-sm"
+                    placeholder="Brand Name"
+                  />
+                ) : (
+                  ticket.brandName || "Default Brand"
+                )}
+              </TableCell>
+              <TableCell>
+                {isEditing(ticket.id) ? (
                   <select 
                     value={editingValues.priority || ticket.priority}
                     onChange={(e) => setEditingValues(prev => ({ ...prev, priority: e.target.value as Ticket['priority'] }))}
@@ -204,9 +246,19 @@ export const TicketTable: React.FC<TicketTableProps> = ({
                     <option value="SOS">SOS</option>
                   </select>
                 ) : (
-                  <Badge className={getPriorityClass(ticket.priority)}>
-                    {ticket.priority}
-                  </Badge>
+                  <Select value={ticket.priority} onValueChange={(value) => handlePriorityChange(ticket.id, value as Ticket['priority'])}>
+                    <SelectTrigger className="w-[100px] h-8 border-none shadow-none p-0">
+                      <Badge className={getPriorityClass(ticket.priority)}>
+                        {ticket.priority}
+                      </Badge>
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="SOS">SOS</SelectItem>
+                      <SelectItem value="High">High</SelectItem>
+                      <SelectItem value="Medium">Medium</SelectItem>
+                      <SelectItem value="Low">Low</SelectItem>
+                    </SelectContent>
+                  </Select>
                 )}
               </TableCell>
               <TableCell>
@@ -222,12 +274,30 @@ export const TicketTable: React.FC<TicketTableProps> = ({
                 )}
               </TableCell>
               <TableCell>
-                <Badge 
-                  className={`${getStatusClass(ticket.status)} cursor-pointer`}
-                  onClick={() => !isEditing(ticket.id) && handleStatusToggle(ticket)}
-                >
-                  {ticket.status}
-                </Badge>
+                {isEditing(ticket.id) ? (
+                  <select 
+                    value={editingValues.status || ticket.status}
+                    onChange={(e) => setEditingValues(prev => ({ ...prev, status: e.target.value as Ticket['status'] }))}
+                    className="border rounded px-2 py-1 text-sm"
+                  >
+                    <option value="Open">Open</option>
+                    <option value="In Progress">In Progress</option>
+                    <option value="Completed">Completed</option>
+                  </select>
+                ) : (
+                  <Select value={ticket.status} onValueChange={(value) => handleStatusChange(ticket.id, value as Ticket['status'])}>
+                    <SelectTrigger className="w-[120px] h-8 border-none shadow-none p-0">
+                      <Badge className={getStatusClass(ticket.status)}>
+                        {ticket.status}
+                      </Badge>
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Open">Open</SelectItem>
+                      <SelectItem value="In Progress">In Progress</SelectItem>
+                      <SelectItem value="Completed">Completed</SelectItem>
+                    </SelectContent>
+                  </Select>
+                )}
               </TableCell>
               <TableCell>
                 {isEditing(ticket.id) ? (
@@ -247,6 +317,19 @@ export const TicketTable: React.FC<TicketTableProps> = ({
                   {getTatStatusIndicator(ticket.tatStatus)}
                   <span className="text-sm">{ticket.tatStatus}</span>
                 </div>
+              </TableCell>
+              <TableCell>
+                {isEditing(ticket.id) ? (
+                  <input
+                    type="text"
+                    value={editingValues.timeTaken || ticket.timeTaken || ""}
+                    onChange={(e) => setEditingValues(prev => ({ ...prev, timeTaken: e.target.value }))}
+                    className="border rounded px-2 py-1 w-full text-sm"
+                    placeholder="0h"
+                  />
+                ) : (
+                  ticket.timeTaken || "0h"
+                )}
               </TableCell>
               <TableCell className="text-muted-foreground">{ticket.timeCreated}</TableCell>
               <TableCell className="text-right">
