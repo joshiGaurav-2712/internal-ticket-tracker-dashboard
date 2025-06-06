@@ -1,4 +1,3 @@
-
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -30,6 +29,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { ViewTicketModal } from "./ViewTicketModal";
 
 interface TicketTableProps {
   tickets: Ticket[];
@@ -114,6 +114,8 @@ export const TicketTable: React.FC<TicketTableProps> = ({
   sortDirection
 }) => {
   const [editingValues, setEditingValues] = useState<Partial<Ticket>>({});
+  const [viewingTicket, setViewingTicket] = useState<Ticket | null>(null);
+  const [isViewModalOpen, setIsViewModalOpen] = useState(false);
 
   const handleStatusChange = (ticketId: string, newStatus: Ticket['status']) => {
     onStatusChange(ticketId, newStatus);
@@ -172,6 +174,16 @@ export const TicketTable: React.FC<TicketTableProps> = ({
       <ChevronDown className="w-4 h-4" />;
   };
 
+  const handleViewTicket = (ticket: Ticket) => {
+    setViewingTicket(ticket);
+    setIsViewModalOpen(true);
+  };
+
+  const handleCloseViewModal = () => {
+    setIsViewModalOpen(false);
+    setViewingTicket(null);
+  };
+
   if (tickets.length === 0) {
     return (
       <div className="bg-white rounded-lg shadow-sm p-8 text-center">
@@ -181,228 +193,236 @@ export const TicketTable: React.FC<TicketTableProps> = ({
   }
 
   return (
-    <div className="bg-white rounded-lg shadow-sm overflow-hidden">
-      <Table>
-        <TableHeader>
-          <TableRow className="bg-gray-50">
-            <TableHead className="w-[100px]">Ticket ID</TableHead>
-            <TableHead 
-              className="w-[120px] cursor-pointer hover:bg-gray-100"
-              onClick={() => handleSort('brandName')}
-            >
-              <div className="flex items-center gap-1">
-                Brand Name
-                <SortIcon field="brandName" />
-              </div>
-            </TableHead>
-            <TableHead className="w-[120px]">Priority</TableHead>
-            <TableHead>Title</TableHead>
-            <TableHead>Status</TableHead>
-            <TableHead>Assigned To</TableHead>
-            <TableHead>TAT Status</TableHead>
-            <TableHead>Time Taken</TableHead>
-            <TableHead>Time Created</TableHead>
-            <TableHead className="text-right">Action</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {tickets.map((ticket) => (
-            <TableRow key={ticket.id} className="hover:bg-gray-50">
-              <TableCell className="font-medium">
-                {isEditing(ticket.id) ? (
-                  <input
-                    type="text"
-                    value={editingValues.id || ticket.id}
-                    onChange={(e) => setEditingValues(prev => ({ ...prev, id: e.target.value }))}
-                    className="border rounded px-2 py-1 w-full text-sm"
-                  />
-                ) : (
-                  ticket.id
-                )}
-              </TableCell>
-              <TableCell>
-                {isEditing(ticket.id) ? (
-                  <input
-                    type="text"
-                    value={editingValues.brandName || ticket.brandName || ""}
-                    onChange={(e) => setEditingValues(prev => ({ ...prev, brandName: e.target.value }))}
-                    className="border rounded px-2 py-1 w-full text-sm"
-                    placeholder="Brand Name"
-                  />
-                ) : (
-                  ticket.brandName || "Default Brand"
-                )}
-              </TableCell>
-              <TableCell>
-                {isEditing(ticket.id) ? (
-                  <select 
-                    value={editingValues.priority || ticket.priority}
-                    onChange={(e) => setEditingValues(prev => ({ ...prev, priority: e.target.value as Ticket['priority'] }))}
-                    className="border rounded px-2 py-1 text-sm"
-                  >
-                    <option value="Low">Low</option>
-                    <option value="Medium">Medium</option>
-                    <option value="High">High</option>
-                    <option value="SOS">SOS</option>
-                  </select>
-                ) : (
-                  <Select value={ticket.priority} onValueChange={(value) => handlePriorityChange(ticket.id, value as Ticket['priority'])}>
-                    <SelectTrigger className="w-[100px] h-8 border-none shadow-none p-0">
-                      <Badge className={getPriorityClass(ticket.priority)}>
-                        {ticket.priority}
-                      </Badge>
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="SOS">SOS</SelectItem>
-                      <SelectItem value="High">High</SelectItem>
-                      <SelectItem value="Medium">Medium</SelectItem>
-                      <SelectItem value="Low">Low</SelectItem>
-                    </SelectContent>
-                  </Select>
-                )}
-              </TableCell>
-              <TableCell>
-                {isEditing(ticket.id) ? (
-                  <input
-                    type="text"
-                    value={editingValues.title || ticket.title}
-                    onChange={(e) => setEditingValues(prev => ({ ...prev, title: e.target.value }))}
-                    className="border rounded px-2 py-1 w-full"
-                  />
-                ) : (
-                  ticket.title
-                )}
-              </TableCell>
-              <TableCell>
-                {isEditing(ticket.id) ? (
-                  <select 
-                    value={editingValues.status || ticket.status}
-                    onChange={(e) => setEditingValues(prev => ({ ...prev, status: e.target.value as Ticket['status'] }))}
-                    className="border rounded px-2 py-1 text-sm"
-                  >
-                    <option value="Open">Open</option>
-                    <option value="In Progress">In Progress</option>
-                    <option value="Completed">Completed</option>
-                  </select>
-                ) : (
-                  <Select value={ticket.status} onValueChange={(value) => handleStatusChange(ticket.id, value as Ticket['status'])}>
-                    <SelectTrigger className="w-[120px] h-8 border-none shadow-none p-0">
-                      <Badge className={getStatusClass(ticket.status)}>
-                        {ticket.status}
-                      </Badge>
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Open">Open</SelectItem>
-                      <SelectItem value="In Progress">In Progress</SelectItem>
-                      <SelectItem value="Completed">Completed</SelectItem>
-                    </SelectContent>
-                  </Select>
-                )}
-              </TableCell>
-              <TableCell>
-                {isEditing(ticket.id) ? (
-                  <input
-                    type="text"
-                    value={editingValues.assignedTo || ticket.assignedTo || ""}
-                    onChange={(e) => setEditingValues(prev => ({ ...prev, assignedTo: e.target.value }))}
-                    className="border rounded px-2 py-1 w-full"
-                    placeholder="Unassigned"
-                  />
-                ) : (
-                  ticket.assignedTo || "Unassigned"
-                )}
-              </TableCell>
-              <TableCell>
-                <div className="flex items-center gap-2">
-                  {getTatStatusIndicator(ticket.tatStatus)}
-                  <span className="text-sm">{ticket.tatStatus}</span>
+    <>
+      <div className="bg-white rounded-lg shadow-sm overflow-hidden">
+        <Table>
+          <TableHeader>
+            <TableRow className="bg-gray-50">
+              <TableHead className="w-[100px]">Ticket ID</TableHead>
+              <TableHead 
+                className="w-[120px] cursor-pointer hover:bg-gray-100"
+                onClick={() => handleSort('brandName')}
+              >
+                <div className="flex items-center gap-1">
+                  Brand Name
+                  <SortIcon field="brandName" />
                 </div>
-              </TableCell>
-              <TableCell>
-                {isEditing(ticket.id) ? (
-                  <input
-                    type="text"
-                    value={editingValues.timeTaken || ticket.timeTaken || ""}
-                    onChange={(e) => setEditingValues(prev => ({ ...prev, timeTaken: e.target.value }))}
-                    className="border rounded px-2 py-1 w-full text-sm"
-                    placeholder="0h"
-                  />
-                ) : (
-                  ticket.timeTaken || "0h"
-                )}
-              </TableCell>
-              <TableCell className="text-muted-foreground">{ticket.timeCreated}</TableCell>
-              <TableCell className="text-right">
-                {isEditing(ticket.id) ? (
-                  <div className="flex gap-1">
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      onClick={handleEditSave}
-                      className="text-green-600 hover:text-green-700"
-                    >
-                      <Check className="w-4 h-4" />
-                    </Button>
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      onClick={handleEditCancel}
-                      className="text-red-600 hover:text-red-700"
-                    >
-                      <X className="w-4 h-4" />
-                    </Button>
-                  </div>
-                ) : (
-                  <div className="flex gap-1">
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      onClick={() => console.log('View ticket:', ticket.id)}
-                    >
-                      VIEW
-                    </Button>
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      onClick={() => handleEditStart(ticket)}
-                    >
-                      <Edit className="w-4 h-4" />
-                    </Button>
-                    <AlertDialog>
-                      <AlertDialogTrigger asChild>
-                        <Button 
-                          variant="outline" 
-                          size="sm"
-                          className="text-red-600 hover:text-red-700"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
-                      </AlertDialogTrigger>
-                      <AlertDialogContent>
-                        <AlertDialogHeader>
-                          <AlertDialogTitle>Delete Ticket</AlertDialogTitle>
-                          <AlertDialogDescription>
-                            Are you sure you want to delete ticket {ticket.id}? This action cannot be undone.
-                          </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                          <AlertDialogCancel>Cancel</AlertDialogCancel>
-                          <AlertDialogAction 
-                            onClick={() => handleDelete(ticket.id)}
-                            className="bg-red-600 hover:bg-red-700"
-                          >
-                            Delete
-                          </AlertDialogAction>
-                        </AlertDialogFooter>
-                      </AlertDialogContent>
-                    </AlertDialog>
-                  </div>
-                )}
-              </TableCell>
+              </TableHead>
+              <TableHead className="w-[120px]">Priority</TableHead>
+              <TableHead>Title</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead>Assigned To</TableHead>
+              <TableHead>TAT Status</TableHead>
+              <TableHead>Time Taken</TableHead>
+              <TableHead>Time Created</TableHead>
+              <TableHead className="text-right">Action</TableHead>
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </div>
+          </TableHeader>
+          <TableBody>
+            {tickets.map((ticket) => (
+              <TableRow key={ticket.id} className="hover:bg-gray-50">
+                <TableCell className="font-medium">
+                  {isEditing(ticket.id) ? (
+                    <input
+                      type="text"
+                      value={editingValues.id || ticket.id}
+                      onChange={(e) => setEditingValues(prev => ({ ...prev, id: e.target.value }))}
+                      className="border rounded px-2 py-1 w-full text-sm"
+                    />
+                  ) : (
+                    ticket.id
+                  )}
+                </TableCell>
+                <TableCell>
+                  {isEditing(ticket.id) ? (
+                    <input
+                      type="text"
+                      value={editingValues.brandName || ticket.brandName || ""}
+                      onChange={(e) => setEditingValues(prev => ({ ...prev, brandName: e.target.value }))}
+                      className="border rounded px-2 py-1 w-full text-sm"
+                      placeholder="Brand Name"
+                    />
+                  ) : (
+                    ticket.brandName || "Default Brand"
+                  )}
+                </TableCell>
+                <TableCell>
+                  {isEditing(ticket.id) ? (
+                    <select 
+                      value={editingValues.priority || ticket.priority}
+                      onChange={(e) => setEditingValues(prev => ({ ...prev, priority: e.target.value as Ticket['priority'] }))}
+                      className="border rounded px-2 py-1 text-sm"
+                    >
+                      <option value="Low">Low</option>
+                      <option value="Medium">Medium</option>
+                      <option value="High">High</option>
+                      <option value="SOS">SOS</option>
+                    </select>
+                  ) : (
+                    <Select value={ticket.priority} onValueChange={(value) => handlePriorityChange(ticket.id, value as Ticket['priority'])}>
+                      <SelectTrigger className="w-[100px] h-8 border-none shadow-none p-0">
+                        <Badge className={getPriorityClass(ticket.priority)}>
+                          {ticket.priority}
+                        </Badge>
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="SOS">SOS</SelectItem>
+                        <SelectItem value="High">High</SelectItem>
+                        <SelectItem value="Medium">Medium</SelectItem>
+                        <SelectItem value="Low">Low</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  )}
+                </TableCell>
+                <TableCell>
+                  {isEditing(ticket.id) ? (
+                    <input
+                      type="text"
+                      value={editingValues.title || ticket.title}
+                      onChange={(e) => setEditingValues(prev => ({ ...prev, title: e.target.value }))}
+                      className="border rounded px-2 py-1 w-full"
+                    />
+                  ) : (
+                    ticket.title
+                  )}
+                </TableCell>
+                <TableCell>
+                  {isEditing(ticket.id) ? (
+                    <select 
+                      value={editingValues.status || ticket.status}
+                      onChange={(e) => setEditingValues(prev => ({ ...prev, status: e.target.value as Ticket['status'] }))}
+                      className="border rounded px-2 py-1 text-sm"
+                    >
+                      <option value="Open">Open</option>
+                      <option value="In Progress">In Progress</option>
+                      <option value="Completed">Completed</option>
+                    </select>
+                  ) : (
+                    <Select value={ticket.status} onValueChange={(value) => handleStatusChange(ticket.id, value as Ticket['status'])}>
+                      <SelectTrigger className="w-[120px] h-8 border-none shadow-none p-0">
+                        <Badge className={getStatusClass(ticket.status)}>
+                          {ticket.status}
+                        </Badge>
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Open">Open</SelectItem>
+                        <SelectItem value="In Progress">In Progress</SelectItem>
+                        <SelectItem value="Completed">Completed</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  )}
+                </TableCell>
+                <TableCell>
+                  {isEditing(ticket.id) ? (
+                    <input
+                      type="text"
+                      value={editingValues.assignedTo || ticket.assignedTo || ""}
+                      onChange={(e) => setEditingValues(prev => ({ ...prev, assignedTo: e.target.value }))}
+                      className="border rounded px-2 py-1 w-full"
+                      placeholder="Unassigned"
+                    />
+                  ) : (
+                    ticket.assignedTo || "Unassigned"
+                  )}
+                </TableCell>
+                <TableCell>
+                  <div className="flex items-center gap-2">
+                    {getTatStatusIndicator(ticket.tatStatus)}
+                    <span className="text-sm">{ticket.tatStatus}</span>
+                  </div>
+                </TableCell>
+                <TableCell>
+                  {isEditing(ticket.id) ? (
+                    <input
+                      type="text"
+                      value={editingValues.timeTaken || ticket.timeTaken || ""}
+                      onChange={(e) => setEditingValues(prev => ({ ...prev, timeTaken: e.target.value }))}
+                      className="border rounded px-2 py-1 w-full text-sm"
+                      placeholder="0h"
+                    />
+                  ) : (
+                    ticket.timeTaken || "0h"
+                  )}
+                </TableCell>
+                <TableCell className="text-muted-foreground">{ticket.timeCreated}</TableCell>
+                <TableCell className="text-right">
+                  {isEditing(ticket.id) ? (
+                    <div className="flex gap-1">
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={handleEditSave}
+                        className="text-green-600 hover:text-green-700"
+                      >
+                        <Check className="w-4 h-4" />
+                      </Button>
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={handleEditCancel}
+                        className="text-red-600 hover:text-red-700"
+                      >
+                        <X className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="flex gap-1">
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => handleViewTicket(ticket)}
+                      >
+                        VIEW
+                      </Button>
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => handleEditStart(ticket)}
+                      >
+                        <Edit className="w-4 h-4" />
+                      </Button>
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            className="text-red-600 hover:text-red-700"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>Delete Ticket</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              Are you sure you want to delete ticket {ticket.id}? This action cannot be undone.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <AlertDialogAction 
+                              onClick={() => handleDelete(ticket.id)}
+                              className="bg-red-600 hover:bg-red-700"
+                            >
+                              Delete
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
+                    </div>
+                  )}
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
+
+      <ViewTicketModal
+        isOpen={isViewModalOpen}
+        onClose={handleCloseViewModal}
+        ticket={viewingTicket}
+      />
+    </>
   );
 };
