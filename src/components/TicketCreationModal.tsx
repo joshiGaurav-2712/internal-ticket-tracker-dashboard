@@ -12,7 +12,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Ticket } from "@/types";
-import { X } from "lucide-react";
 
 interface TicketCreationModalProps {
   isOpen: boolean;
@@ -64,48 +63,51 @@ export const TicketCreationModal: React.FC<TicketCreationModalProps> = ({
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
+  const handleScheduleMeeting = () => {
+    const meetingUrl = 'https://calendar.google.com/calendar/u/0/r/eventedit?text=Meeting+Title&details=Meeting+Description&location=Online&dates=20250610T083000Z/20250610T093000Z';
+    window.open(meetingUrl, '_blank');
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+      <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto animate-scale-in">
         <DialogHeader className="border-b pb-4">
           <div className="flex items-center justify-between">
             <div className="flex gap-4">
-              <button className="text-blue-600 border-b-2 border-blue-600 pb-2 px-1 font-medium">
+              <button className="text-blue-600 border-b-2 border-blue-600 pb-2 px-1 font-medium transition-colors duration-200">
                 Task
               </button>
-              <button className="text-gray-500 pb-2 px-1">Doc</button>
-              <button className="text-gray-500 pb-2 px-1">Reminder</button>
-              <button className="text-gray-500 pb-2 px-1">Chat</button>
-              <button className="text-gray-500 pb-2 px-1">Whiteboard</button>
-              <button className="text-gray-500 pb-2 px-1">Dashboard</button>
+              <button className="text-gray-500 pb-2 px-1 hover:text-blue-600 transition-colors duration-200">Doc</button>
+              <button className="text-gray-500 pb-2 px-1 hover:text-blue-600 transition-colors duration-200">Reminder</button>
+              <button className="text-gray-500 pb-2 px-1 hover:text-blue-600 transition-colors duration-200">Chat</button>
+              <button className="text-gray-500 pb-2 px-1 hover:text-blue-600 transition-colors duration-200">Whiteboard</button>
+              <button className="text-gray-500 pb-2 px-1 hover:text-blue-600 transition-colors duration-200">Dashboard</button>
             </div>
-            <Button variant="ghost" size="sm" onClick={onClose}>
-              <X className="w-4 h-4" />
-            </Button>
+            <DialogTitle className="sr-only">Create New Ticket</DialogTitle>
           </div>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-6 p-1">
+        <form onSubmit={handleSubmit} className="space-y-6 p-1 animate-fade-in-up">
           <div className="space-y-4">
-            <div>
+            <div className="animate-slide-in-down">
               <Input
                 placeholder="Task Name or type '/' for commands"
                 value={formData.title}
                 onChange={(e) => handleInputChange('title', e.target.value)}
-                className="text-lg border-none shadow-none text-gray-600 p-0 focus-visible:ring-0"
+                className="text-lg border-none shadow-none text-gray-600 p-0 focus-visible:ring-0 transition-all duration-200"
               />
             </div>
 
-            <div>
+            <div className="animate-fade-in-up animate-stagger-1" style={{ animationFillMode: 'both' }}>
               <Textarea
                 placeholder="Add description"
                 value={formData.description}
                 onChange={(e) => handleInputChange('description', e.target.value)}
-                className="min-h-[100px] border-none shadow-none resize-none focus-visible:ring-0"
+                className="min-h-[100px] border-none shadow-none resize-none focus-visible:ring-0 transition-all duration-200"
               />
             </div>
 
-            <div className="flex flex-wrap gap-4 py-4">
+            <div className="flex flex-wrap gap-4 py-4 animate-fade-in-up animate-stagger-2" style={{ animationFillMode: 'both' }}>
               <div className="flex items-center gap-2">
                 <Label className="text-sm font-medium">TO DO</Label>
               </div>
@@ -116,14 +118,14 @@ export const TicketCreationModal: React.FC<TicketCreationModalProps> = ({
                   placeholder="Unassigned"
                   value={formData.assignedTo}
                   onChange={(e) => handleInputChange('assignedTo', e.target.value)}
-                  className="w-32 h-8"
+                  className="w-32 h-8 transition-all duration-200 hover-lift"
                 />
               </div>
 
               <div className="flex items-center gap-2">
                 <Label className="text-sm text-gray-600">Priority</Label>
                 <Select value={formData.priority} onValueChange={(value) => handleInputChange('priority', value)}>
-                  <SelectTrigger className="w-32 h-8">
+                  <SelectTrigger className="w-32 h-8 transition-all duration-200 hover-lift">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -138,7 +140,7 @@ export const TicketCreationModal: React.FC<TicketCreationModalProps> = ({
               <div className="flex items-center gap-2">
                 <Label className="text-sm text-gray-600">Status</Label>
                 <Select value={formData.status} onValueChange={(value) => handleInputChange('status', value)}>
-                  <SelectTrigger className="w-32 h-8">
+                  <SelectTrigger className="w-32 h-8 transition-all duration-200 hover-lift">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -155,26 +157,34 @@ export const TicketCreationModal: React.FC<TicketCreationModalProps> = ({
                   placeholder="Brand Name"
                   value={formData.brandName}
                   onChange={(e) => handleInputChange('brandName', e.target.value)}
-                  className="w-32 h-8"
+                  className="w-32 h-8 transition-all duration-200 hover-lift"
                 />
               </div>
             </div>
           </div>
 
-          <div className="flex justify-between items-center pt-4 border-t">
+          <div className="flex justify-between items-center pt-4 border-t animate-fade-in-up animate-stagger-3" style={{ animationFillMode: 'both' }}>
             <div className="flex items-center gap-4">
-              <Button type="button" variant="ghost" className="text-sm">
+              <Button type="button" variant="ghost" className="text-sm transition-all duration-200 hover-lift">
                 📋 Templates
+              </Button>
+              <Button 
+                type="button" 
+                variant="ghost" 
+                className="text-sm transition-all duration-200 hover-lift"
+                onClick={handleScheduleMeeting}
+              >
+                📅 Schedule Meeting
               </Button>
             </div>
             <div className="flex items-center gap-2">
-              <Button type="button" variant="ghost" size="sm">
+              <Button type="button" variant="ghost" size="sm" className="transition-all duration-200 hover-lift">
                 📎
               </Button>
-              <Button type="button" variant="ghost" size="sm">
+              <Button type="button" variant="ghost" size="sm" className="transition-all duration-200 hover-lift">
                 🔔 1
               </Button>
-              <Button type="submit" className="bg-blue-600 hover:bg-blue-700">
+              <Button type="submit" className="bg-blue-600 hover:bg-blue-700 transition-all duration-300 hover-lift">
                 Create Task
               </Button>
             </div>

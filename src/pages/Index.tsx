@@ -294,54 +294,58 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen">
       <Navigation onCreateTicket={handleCreateTicket} />
-      <div className="container mx-auto py-6 px-4">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
+      <div className="container mx-auto py-6 px-4 lg:px-6">
+        <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-6 animate-fade-in-up">
           <div>
-            <h2 className="text-2xl font-semibold">Welcome to Troopod Dashboard</h2>
+            <h2 className="text-2xl lg:text-3xl font-semibold">Welcome to Troopod Dashboard</h2>
             <p className="text-gray-600">Overview of your projects and tickets</p>
           </div>
           <LastUpdated />
         </div>
         
-        <div className="mb-8">
+        <div className="mb-8 animate-fade-in-up animate-stagger-1" style={{ animationFillMode: 'both' }}>
           <SummaryCards stats={summaryStats} />
         </div>
         
-        <div className="mb-8">
+        <div className="mb-8 animate-fade-in-up animate-stagger-2" style={{ animationFillMode: 'both' }}>
           <StatusOverview tatStats={tatStats} />
         </div>
         
         {sosTicketsCount > 0 && (
-          <div className="mb-8">
+          <div className="mb-8 animate-fade-in-up animate-stagger-3" style={{ animationFillMode: 'both' }}>
             <SOSAlert count={sosTicketsCount} />
           </div>
         )}
         
-        <div className="mb-8">
-          <h2 className="text-xl font-semibold mb-4">Ticket Details</h2>
-          <TicketFilters 
-            filters={filters}
-            onFilterChange={handleFilterChange}
-            ticketCount={filteredAndSortedTickets.length}
-          />
-          <TicketTable 
-            tickets={filteredAndSortedTickets}
-            onStatusChange={handleTicketStatusChange}
-            onPriorityChange={handleTicketPriorityChange}
-            editingTicketId={editingTicketId}
-            onTicketUpdate={handleTicketUpdate}
-            onEditComplete={handleEditComplete}
-            onEditStart={handleEditStart}
-            onTicketDelete={handleTicketDelete}
-            onSort={handleSort}
-            sortField={sortField}
-            sortDirection={sortDirection}
-          />
+        <div className="mb-8 animate-fade-in-up animate-stagger-4" style={{ animationFillMode: 'both' }}>
+          <h2 className="text-xl lg:text-2xl font-semibold mb-4">Ticket Details</h2>
+          <div className="space-y-4">
+            <TicketFilters 
+              filters={filters}
+              onFilterChange={handleFilterChange}
+              ticketCount={filteredAndSortedTickets.length}
+            />
+            <div className="overflow-x-auto">
+              <TicketTable 
+                tickets={filteredAndSortedTickets}
+                onStatusChange={handleTicketStatusChange}
+                onPriorityChange={handleTicketPriorityChange}
+                editingTicketId={editingTicketId}
+                onTicketUpdate={handleTicketUpdate}
+                onEditComplete={handleEditComplete}
+                onEditStart={handleEditStart}
+                onTicketDelete={handleTicketDelete}
+                onSort={handleSort}
+                sortField={sortField}
+                sortDirection={sortDirection}
+              />
+            </div>
+          </div>
         </div>
 
-        <div className="mb-8">
+        <div className="mb-8 animate-fade-in-up animate-stagger-4" style={{ animationFillMode: 'both' }}>
           <CommunicationCenter />
         </div>
       </div>
