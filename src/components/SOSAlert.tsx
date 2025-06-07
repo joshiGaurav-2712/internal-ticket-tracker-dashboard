@@ -13,18 +13,18 @@ export const SOSAlert: React.FC<SOSAlertProps> = ({ count }) => {
   };
 
   return (
-    <div className="bg-red-50 border border-red-100 rounded-lg p-4 flex items-center justify-between">
-      <div className="flex items-center gap-3">
-        <div className="w-8 h-8 bg-red-100 rounded-lg flex items-center justify-center">
-          <AlertTriangle className="text-red-500 w-5 h-5" />
+    <div className="bg-gradient-to-r from-red-50 to-orange-50 border border-red-200 rounded-xl p-6 flex items-center justify-between component-card gradient-shadow hover-lift animate-scale-in">
+      <div className="flex items-center gap-4">
+        <div className="w-12 h-12 bg-gradient-to-br from-red-100 to-red-200 rounded-xl flex items-center justify-center shadow-md">
+          <AlertTriangle className="text-red-500 w-6 h-6" />
         </div>
         <div>
-          <h3 className="text-red-700 font-medium">SOS Tasks Requiring Immediate Attention</h3>
-          <p className="text-red-600 text-sm">{count} critical task{count !== 1 ? 's' : ''} need{count === 1 ? 's' : ''} your immediate response</p>
+          <h3 className="text-red-700 font-bold text-lg">SOS Tasks Requiring Immediate Attention</h3>
+          <p className="text-red-600 text-sm font-medium">{count} critical task{count !== 1 ? 's' : ''} need{count === 1 ? 's' : ''} your immediate response</p>
         </div>
       </div>
       <Button 
-        className="bg-red-500 hover:bg-red-600"
+        className="bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 shadow-lg hover:shadow-xl transition-all duration-300"
         onClick={handleViewSOSTasks}
       >
         View SOS Tasks

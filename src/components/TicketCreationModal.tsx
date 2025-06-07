@@ -63,25 +63,20 @@ export const TicketCreationModal: React.FC<TicketCreationModalProps> = ({
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
-  const handleScheduleMeeting = () => {
-    const meetingUrl = 'https://calendar.google.com/calendar/u/0/r/eventedit?text=Meeting+Title&details=Meeting+Description&location=Online&dates=20250610T083000Z/20250610T093000Z';
-    window.open(meetingUrl, '_blank');
-  };
-
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto animate-scale-in">
+      <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto animate-scale-in component-card gradient-shadow">
         <DialogHeader className="border-b pb-4">
           <div className="flex items-center justify-between">
             <div className="flex gap-4">
-              <button className="text-blue-600 border-b-2 border-blue-600 pb-2 px-1 font-medium transition-colors duration-200">
+              <button className="text-blue-600 border-b-2 border-blue-600 pb-2 px-1 font-bold transition-colors duration-200">
                 Task
               </button>
-              <button className="text-gray-500 pb-2 px-1 hover:text-blue-600 transition-colors duration-200">Doc</button>
-              <button className="text-gray-500 pb-2 px-1 hover:text-blue-600 transition-colors duration-200">Reminder</button>
-              <button className="text-gray-500 pb-2 px-1 hover:text-blue-600 transition-colors duration-200">Chat</button>
-              <button className="text-gray-500 pb-2 px-1 hover:text-blue-600 transition-colors duration-200">Whiteboard</button>
-              <button className="text-gray-500 pb-2 px-1 hover:text-blue-600 transition-colors duration-200">Dashboard</button>
+              <button className="text-gray-500 pb-2 px-1 hover:text-blue-600 transition-colors duration-200 font-medium">Doc</button>
+              <button className="text-gray-500 pb-2 px-1 hover:text-blue-600 transition-colors duration-200 font-medium">Reminder</button>
+              <button className="text-gray-500 pb-2 px-1 hover:text-blue-600 transition-colors duration-200 font-medium">Chat</button>
+              <button className="text-gray-500 pb-2 px-1 hover:text-blue-600 transition-colors duration-200 font-medium">Whiteboard</button>
+              <button className="text-gray-500 pb-2 px-1 hover:text-blue-600 transition-colors duration-200 font-medium">Dashboard</button>
             </div>
             <DialogTitle className="sr-only">Create New Ticket</DialogTitle>
           </div>
@@ -94,7 +89,7 @@ export const TicketCreationModal: React.FC<TicketCreationModalProps> = ({
                 placeholder="Task Name or type '/' for commands"
                 value={formData.title}
                 onChange={(e) => handleInputChange('title', e.target.value)}
-                className="text-lg border-none shadow-none text-gray-600 p-0 focus-visible:ring-0 transition-all duration-200"
+                className="text-lg border-none shadow-none text-gray-600 p-0 focus-visible:ring-0 transition-all duration-200 bg-transparent"
               />
             </div>
 
@@ -103,29 +98,29 @@ export const TicketCreationModal: React.FC<TicketCreationModalProps> = ({
                 placeholder="Add description"
                 value={formData.description}
                 onChange={(e) => handleInputChange('description', e.target.value)}
-                className="min-h-[100px] border-none shadow-none resize-none focus-visible:ring-0 transition-all duration-200"
+                className="min-h-[100px] border-none shadow-none resize-none focus-visible:ring-0 transition-all duration-200 bg-gradient-to-br from-gray-50 to-white rounded-lg p-4"
               />
             </div>
 
             <div className="flex flex-wrap gap-4 py-4 animate-fade-in-up animate-stagger-2" style={{ animationFillMode: 'both' }}>
               <div className="flex items-center gap-2">
-                <Label className="text-sm font-medium">TO DO</Label>
+                <Label className="text-sm font-bold bg-gradient-to-r from-blue-600 to-blue-800 bg-clip-text text-transparent">TO DO</Label>
               </div>
               
               <div className="flex items-center gap-2">
-                <Label className="text-sm text-gray-600">Assignee</Label>
+                <Label className="text-sm text-gray-600 font-medium">Assignee</Label>
                 <Input
                   placeholder="Unassigned"
                   value={formData.assignedTo}
                   onChange={(e) => handleInputChange('assignedTo', e.target.value)}
-                  className="w-32 h-8 transition-all duration-200 hover-lift"
+                  className="w-32 h-8 transition-all duration-200 hover-lift component-card"
                 />
               </div>
 
               <div className="flex items-center gap-2">
-                <Label className="text-sm text-gray-600">Priority</Label>
+                <Label className="text-sm text-gray-600 font-medium">Priority</Label>
                 <Select value={formData.priority} onValueChange={(value) => handleInputChange('priority', value)}>
-                  <SelectTrigger className="w-32 h-8 transition-all duration-200 hover-lift">
+                  <SelectTrigger className="w-32 h-8 transition-all duration-200 hover-lift component-card">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -138,9 +133,9 @@ export const TicketCreationModal: React.FC<TicketCreationModalProps> = ({
               </div>
 
               <div className="flex items-center gap-2">
-                <Label className="text-sm text-gray-600">Status</Label>
+                <Label className="text-sm text-gray-600 font-medium">Status</Label>
                 <Select value={formData.status} onValueChange={(value) => handleInputChange('status', value)}>
-                  <SelectTrigger className="w-32 h-8 transition-all duration-200 hover-lift">
+                  <SelectTrigger className="w-32 h-8 transition-all duration-200 hover-lift component-card">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -152,12 +147,12 @@ export const TicketCreationModal: React.FC<TicketCreationModalProps> = ({
               </div>
 
               <div className="flex items-center gap-2">
-                <Label className="text-sm text-gray-600">Brand</Label>
+                <Label className="text-sm text-gray-600 font-medium">Brand</Label>
                 <Input
                   placeholder="Brand Name"
                   value={formData.brandName}
                   onChange={(e) => handleInputChange('brandName', e.target.value)}
-                  className="w-32 h-8 transition-all duration-200 hover-lift"
+                  className="w-32 h-8 transition-all duration-200 hover-lift component-card"
                 />
               </div>
             </div>
@@ -165,16 +160,8 @@ export const TicketCreationModal: React.FC<TicketCreationModalProps> = ({
 
           <div className="flex justify-between items-center pt-4 border-t animate-fade-in-up animate-stagger-3" style={{ animationFillMode: 'both' }}>
             <div className="flex items-center gap-4">
-              <Button type="button" variant="ghost" className="text-sm transition-all duration-200 hover-lift">
+              <Button type="button" variant="ghost" className="text-sm transition-all duration-200 hover-lift font-medium">
                 📋 Templates
-              </Button>
-              <Button 
-                type="button" 
-                variant="ghost" 
-                className="text-sm transition-all duration-200 hover-lift"
-                onClick={handleScheduleMeeting}
-              >
-                📅 Schedule Meeting
               </Button>
             </div>
             <div className="flex items-center gap-2">
@@ -184,7 +171,7 @@ export const TicketCreationModal: React.FC<TicketCreationModalProps> = ({
               <Button type="button" variant="ghost" size="sm" className="transition-all duration-200 hover-lift">
                 🔔 1
               </Button>
-              <Button type="submit" className="bg-blue-600 hover:bg-blue-700 transition-all duration-300 hover-lift">
+              <Button type="submit" className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 transition-all duration-300 hover-lift shadow-lg">
                 Create Task
               </Button>
             </div>

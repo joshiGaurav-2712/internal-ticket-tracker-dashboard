@@ -19,12 +19,12 @@ const StatusBar: React.FC<StatusBarProps> = ({ label, value, maxValue, color }) 
   return (
     <div className="mb-6">
       <div className="flex justify-between mb-2">
-        <span className="text-sm text-gray-600">{label}</span>
-        <span className="text-sm font-medium">{value}</span>
+        <span className="text-sm font-medium text-gray-700">{label}</span>
+        <span className="text-sm font-bold text-gray-800">{value}</span>
       </div>
-      <div className="h-2 bg-gray-100 rounded-full">
+      <div className="h-3 bg-gradient-to-r from-gray-100 to-gray-50 rounded-full shadow-inner">
         <div 
-          className={`h-full rounded-full ${color}`} 
+          className={`h-full rounded-full ${color} shadow-sm transition-all duration-700 ease-out`} 
           style={{ width: `${width}%` }}
         />
       </div>
@@ -36,27 +36,29 @@ export const StatusOverview: React.FC<StatusOverviewProps> = ({ tatStats }) => {
   const { total, onTrack, atRisk, delayed } = tatStats;
   
   const statusData: StatusBarData[] = [
-    { label: "On Track Tasks", value: onTrack, maxValue: total, color: "bg-green-500" },
-    { label: "At Risk Tasks", value: atRisk, maxValue: total, color: "bg-yellow-500" },
-    { label: "Delayed Tasks", value: delayed, maxValue: total, color: "bg-red-500" }
+    { label: "On Track Tasks", value: onTrack, maxValue: total, color: "bg-gradient-to-r from-green-400 to-green-500" },
+    { label: "At Risk Tasks", value: atRisk, maxValue: total, color: "bg-gradient-to-r from-yellow-400 to-yellow-500" },
+    { label: "Delayed Tasks", value: delayed, maxValue: total, color: "bg-gradient-to-r from-red-400 to-red-500" }
   ];
 
   const legendItems = [
-    { color: "bg-green-500", label: "On Track" },
-    { color: "bg-yellow-500", label: "At Risk" },
-    { color: "bg-red-500", label: "Delayed" }
+    { color: "bg-gradient-to-r from-green-400 to-green-500", label: "On Track" },
+    { color: "bg-gradient-to-r from-yellow-400 to-yellow-500", label: "At Risk" },
+    { color: "bg-gradient-to-r from-red-400 to-red-500", label: "Delayed" }
   ];
   
   return (
-    <Card>
+    <Card className="component-card gradient-shadow hover-lift animate-slide-in-up">
       <CardHeader className="pb-2">
         <div className="flex items-center justify-between">
-          <CardTitle className="text-lg">TAT Status Overview</CardTitle>
+          <CardTitle className="text-lg font-bold bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent">
+            TAT Status Overview
+          </CardTitle>
           <div className="flex items-center gap-4">
             {legendItems.map((item, index) => (
               <span key={index} className="flex items-center gap-2">
-                <span className={`w-2 h-2 rounded-full ${item.color}`}></span>
-                <span className="text-sm">{item.label}</span>
+                <span className={`w-3 h-3 rounded-full ${item.color} shadow-sm`}></span>
+                <span className="text-sm font-medium text-gray-700">{item.label}</span>
               </span>
             ))}
           </div>

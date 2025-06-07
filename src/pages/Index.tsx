@@ -296,38 +296,42 @@ const Index = () => {
   return (
     <div className="min-h-screen">
       <Navigation onCreateTicket={handleCreateTicket} />
-      <div className="container mx-auto py-6 px-4 lg:px-6">
-        <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-6 animate-fade-in-up">
+      <div className="container mx-auto py-8 px-4 lg:px-6">
+        <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-8 animate-fade-in-up">
           <div>
-            <h2 className="text-2xl lg:text-3xl font-semibold">Welcome to Troopod Dashboard</h2>
-            <p className="text-gray-600">Overview of your projects and tickets</p>
+            <h2 className="text-3xl lg:text-4xl font-bold bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent">
+              Welcome to Troopod Dashboard
+            </h2>
+            <p className="text-gray-600 font-medium mt-2">Overview of your projects and tickets</p>
           </div>
           <LastUpdated />
         </div>
         
-        <div className="mb-8 animate-fade-in-up animate-stagger-1" style={{ animationFillMode: 'both' }}>
+        <div className="mb-10 animate-fade-in-up animate-stagger-1" style={{ animationFillMode: 'both' }}>
           <SummaryCards stats={summaryStats} />
         </div>
         
-        <div className="mb-8 animate-fade-in-up animate-stagger-2" style={{ animationFillMode: 'both' }}>
+        <div className="mb-10 animate-fade-in-up animate-stagger-2" style={{ animationFillMode: 'both' }}>
           <StatusOverview tatStats={tatStats} />
         </div>
         
         {sosTicketsCount > 0 && (
-          <div className="mb-8 animate-fade-in-up animate-stagger-3" style={{ animationFillMode: 'both' }}>
+          <div className="mb-10 animate-fade-in-up animate-stagger-3" style={{ animationFillMode: 'both' }}>
             <SOSAlert count={sosTicketsCount} />
           </div>
         )}
         
-        <div className="mb-8 animate-fade-in-up animate-stagger-4" style={{ animationFillMode: 'both' }}>
-          <h2 className="text-xl lg:text-2xl font-semibold mb-4">Ticket Details</h2>
-          <div className="space-y-4">
+        <div className="mb-10 animate-fade-in-up animate-stagger-4" style={{ animationFillMode: 'both' }}>
+          <h2 className="text-2xl lg:text-3xl font-bold mb-6 bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent">
+            Ticket Details
+          </h2>
+          <div className="space-y-6">
             <TicketFilters 
               filters={filters}
               onFilterChange={handleFilterChange}
               ticketCount={filteredAndSortedTickets.length}
             />
-            <div className="overflow-x-auto">
+            <div className="overflow-x-auto component-card gradient-shadow rounded-xl">
               <TicketTable 
                 tickets={filteredAndSortedTickets}
                 onStatusChange={handleTicketStatusChange}
@@ -345,7 +349,7 @@ const Index = () => {
           </div>
         </div>
 
-        <div className="mb-8 animate-fade-in-up animate-stagger-4" style={{ animationFillMode: 'both' }}>
+        <div className="mb-8 animate-fade-in-up animate-stagger-5" style={{ animationFillMode: 'both' }}>
           <CommunicationCenter />
         </div>
       </div>

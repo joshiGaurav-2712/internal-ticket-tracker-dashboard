@@ -47,7 +47,7 @@ export const TicketFilters: React.FC<TicketFiltersProps> = ({
     <div className="flex flex-col md:flex-row gap-4 mb-6">
       <div className="flex-1 flex flex-wrap gap-3">
         <select 
-          className="border rounded-md px-3 py-2 bg-white text-sm"
+          className="border rounded-lg px-4 py-2 bg-gradient-to-br from-white to-gray-50 text-sm font-medium shadow-sm hover:shadow-md transition-all duration-200 hover-lift"
           value={filters.ticketStatus}
           onChange={(e) => onFilterChange({ ticketStatus: e.target.value as TicketStatus })}
         >
@@ -58,7 +58,7 @@ export const TicketFilters: React.FC<TicketFiltersProps> = ({
         </select>
         
         <select 
-          className="border rounded-md px-3 py-2 bg-white text-sm"
+          className="border rounded-lg px-4 py-2 bg-gradient-to-br from-white to-gray-50 text-sm font-medium shadow-sm hover:shadow-md transition-all duration-200 hover-lift"
           value={filters.priority}
           onChange={(e) => onFilterChange({ priority: e.target.value as Priority })}
         >
@@ -70,7 +70,7 @@ export const TicketFilters: React.FC<TicketFiltersProps> = ({
         </select>
         
         <select 
-          className="border rounded-md px-3 py-2 bg-white text-sm"
+          className="border rounded-lg px-4 py-2 bg-gradient-to-br from-white to-gray-50 text-sm font-medium shadow-sm hover:shadow-md transition-all duration-200 hover-lift"
           value={filters.tatStatus}
           onChange={(e) => onFilterChange({ tatStatus: e.target.value as TatStatus })}
         >
@@ -84,7 +84,7 @@ export const TicketFilters: React.FC<TicketFiltersProps> = ({
           <Button 
             variant="outline" 
             onClick={handleClearFilters}
-            className="text-sm"
+            className="text-sm hover-lift transition-all duration-200 font-medium"
           >
             Clear Filters
           </Button>
@@ -97,12 +97,15 @@ export const TicketFilters: React.FC<TicketFiltersProps> = ({
           <Input 
             type="text" 
             placeholder="Search by text" 
-            className="w-full pl-9"
+            className="w-full pl-9 component-card hover-lift transition-all duration-200"
             value={filters.searchText}
             onChange={(e) => onFilterChange({ searchText: e.target.value })}
           />
         </div>
-        <Button className="whitespace-nowrap" onClick={handleFilter}>
+        <Button 
+          className="whitespace-nowrap bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 shadow-lg hover:shadow-xl transition-all duration-300 hover-lift font-semibold" 
+          onClick={handleFilter}
+        >
           FILTER ({ticketCount})
         </Button>
       </div>

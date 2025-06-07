@@ -30,9 +30,11 @@ export const Navigation: React.FC<NavigationProps> = ({ onCreateTicket }) => {
   };
 
   return (
-    <nav className="flex items-center justify-between px-6 py-4 bg-white border-b">
+    <nav className="flex items-center justify-between px-6 py-4 component-card gradient-shadow border-b">
       <div className="flex items-center gap-8">
-        <h1 className="text-xl font-semibold text-blue-600">Troopod</h1>
+        <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-blue-800 bg-clip-text text-transparent">
+          Troopod
+        </h1>
         <div className="hidden md:flex items-center space-x-6">
           {/* <NavLink to="/" isActive>Dashboard</NavLink>
           <NavLink to="/projects">Projects</NavLink>
@@ -42,7 +44,7 @@ export const Navigation: React.FC<NavigationProps> = ({ onCreateTicket }) => {
       </div>
       <div className="flex items-center gap-4">
         <Button 
-          className="bg-blue-500 hover:bg-blue-600"
+          className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 shadow-lg hover:shadow-xl transition-all duration-300 hover-lift"
           onClick={onCreateTicket}
         >
           <Plus className="w-4 h-4 mr-2" />
@@ -51,7 +53,7 @@ export const Navigation: React.FC<NavigationProps> = ({ onCreateTicket }) => {
         <Button 
           variant="ghost" 
           size="icon" 
-          className="rounded-full"
+          className="rounded-full hover-lift transition-all duration-300"
           onClick={handleUserMenu}
         >
           <User className="w-5 h-5" />

@@ -21,11 +21,11 @@ const StatCard: React.FC<StatCardProps> = ({
   icon, 
   bgColor = "bg-white" 
 }) => (
-  <div className={`${bgColor} rounded-lg p-6 shadow-sm flex items-start gap-4`}>
-    {icon && <div className="p-2 rounded-full bg-opacity-20">{icon}</div>}
+  <div className={`${bgColor} rounded-xl p-6 component-card gradient-shadow flex items-start gap-4 hover-lift animate-float-up`}>
+    {icon && <div className="p-3 rounded-full bg-gradient-to-br from-white to-gray-50 shadow-md">{icon}</div>}
     <div>
-      <p className="text-gray-500 text-sm">{title}</p>
-      <p className={`text-2xl font-semibold mt-1 ${textColor}`}>{value}</p>
+      <p className="text-gray-500 text-sm font-medium">{title}</p>
+      <p className={`text-2xl font-bold mt-1 ${textColor}`}>{value}</p>
     </div>
   </div>
 );
@@ -36,41 +36,47 @@ export const SummaryCards: React.FC<SummaryCardsProps> = ({ stats }) => {
       title: "Total Tickets", 
       value: stats.total.toString(), 
       icon: <Ticket className="h-6 w-6 text-blue-500" />,
-      bgColor: "bg-blue-50"
+      bgColor: "bg-gradient-to-br from-blue-50 to-blue-25"
     },
     { 
       title: "Open Tickets", 
       value: stats.open.toString(), 
-      textColor: "text-yellow-500", 
+      textColor: "text-yellow-600", 
       icon: <FileText className="h-6 w-6 text-yellow-500" />,
-      bgColor: "bg-yellow-50"
+      bgColor: "bg-gradient-to-br from-yellow-50 to-yellow-25"
     },
     { 
       title: "Closed Tickets", 
       value: stats.completed.toString(), 
-      textColor: "text-green-500", 
+      textColor: "text-green-600", 
       icon: <CheckCircle className="h-6 w-6 text-green-500" />,
-      bgColor: "bg-green-50"
+      bgColor: "bg-gradient-to-br from-green-50 to-green-25"
     },
     { 
       title: "In Progress Tickets", 
       value: stats.inProgress.toString(), 
-      textColor: "text-blue-500", 
+      textColor: "text-blue-600", 
       icon: <Clock3 className="h-6 w-6 text-blue-500" />,
-      bgColor: "bg-blue-50"
+      bgColor: "bg-gradient-to-br from-blue-50 to-blue-25"
     },
     { 
       title: "Time Spent", 
       value: stats.timeSpent, 
       icon: <Clock className="h-6 w-6 text-purple-500" />,
-      bgColor: "bg-purple-50"
+      bgColor: "bg-gradient-to-br from-purple-50 to-purple-25"
     }
   ];
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
       {statsData.map((stat, index) => (
-        <StatCard key={index} {...stat} />
+        <div 
+          key={index} 
+          className="animate-stagger-1" 
+          style={{ animationDelay: `${index * 0.1}s`, animationFillMode: 'both' }}
+        >
+          <StatCard {...stat} />
+        </div>
       ))}
     </div>
   );
