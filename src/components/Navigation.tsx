@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { Plus, User } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -30,13 +29,13 @@ export const Navigation: React.FC<NavigationProps> = ({ onCreateTicket }) => {
   };
 
   return (
-    <nav className="flex items-center justify-between px-6 py-4 component-card gradient-shadow border-b">
+    <nav className="flex items-center justify-between px-8 py-6 component-card gradient-shadow border-b animate-fade-in-down">
       <div className="flex items-center gap-8">
-        <div className="flex items-center gap-3">
-          <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg flex items-center justify-center shadow-lg">
-            <div className="w-4 h-4 bg-white rounded-full opacity-90"></div>
+        <div className="flex items-center gap-4 p-4 rounded-2xl bg-gradient-to-r from-purple-100 to-purple-200 shadow-lg">
+          <div className="w-10 h-10 bg-gradient-to-br from-purple-300 to-purple-400 rounded-xl flex items-center justify-center shadow-md">
+            <div className="w-5 h-5 bg-white rounded-full opacity-90"></div>
           </div>
-          <h1 className="text-2xl font-bold text-gray-900 tracking-tight">
+          <h1 className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-purple-700 bg-clip-text text-transparent tracking-tight">
             troopod
           </h1>
         </div>
