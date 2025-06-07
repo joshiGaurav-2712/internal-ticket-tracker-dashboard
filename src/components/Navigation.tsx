@@ -32,9 +32,14 @@ export const Navigation: React.FC<NavigationProps> = ({ onCreateTicket }) => {
   return (
     <nav className="flex items-center justify-between px-6 py-4 component-card gradient-shadow border-b">
       <div className="flex items-center gap-8">
-        <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-blue-800 bg-clip-text text-transparent">
-          Troopod
-        </h1>
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg flex items-center justify-center shadow-lg">
+            <div className="w-4 h-4 bg-white rounded-full opacity-90"></div>
+          </div>
+          <h1 className="text-2xl font-bold text-gray-900 tracking-tight">
+            troopod
+          </h1>
+        </div>
         <div className="hidden md:flex items-center space-x-6">
           {/* <NavLink to="/" isActive>Dashboard</NavLink>
           <NavLink to="/projects">Projects</NavLink>

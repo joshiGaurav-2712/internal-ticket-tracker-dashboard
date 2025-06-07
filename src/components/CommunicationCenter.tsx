@@ -8,34 +8,13 @@ interface UpdateProps extends Update {}
 
 const UpdateItem: React.FC<UpdateProps> = ({ title, timestamp, timeAgo }) => {
   return (
-    <div className="mb-4 last:mb-0 p-3 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-100">
+    <div className="mb-4 last:mb-0 p-4 bg-gradient-to-r from-blue-50/70 to-indigo-50/70 rounded-xl border border-blue-100/50 shadow-sm hover:shadow-md transition-all duration-300 hover-lift">
       <h4 className="text-sm font-semibold text-gray-800">{title}</h4>
       <div className="flex justify-between items-center mt-2">
-        <span className="text-xs font-medium text-blue-600 bg-blue-100 px-2 py-1 rounded-full">{timestamp}</span>
+        <span className="text-xs font-medium text-blue-600 bg-blue-100/70 px-3 py-1 rounded-full">{timestamp}</span>
         <span className="text-xs text-gray-500">Posted {timeAgo}</span>
       </div>
     </div>
-  );
-};
-
-interface ActionButtonProps {
-  icon: React.ReactNode;
-  label: string;
-  onClick?: () => void;
-}
-
-const ActionButton: React.FC<ActionButtonProps> = ({ icon, label, onClick }) => {
-  return (
-    <Button 
-      variant="outline" 
-      className="flex flex-col items-center h-auto py-4 px-6 gap-2 component-card hover-lift transition-all duration-300"
-      onClick={onClick}
-    >
-      <div className="w-8 h-8 bg-gradient-to-br from-blue-100 to-blue-200 rounded-full flex items-center justify-center text-blue-600 shadow-md">
-        {icon}
-      </div>
-      <span className="text-sm font-medium">{label}</span>
-    </Button>
   );
 };
 
@@ -63,42 +42,51 @@ export const CommunicationCenter: React.FC = () => {
   };
 
   return (
-    <Card className="component-card gradient-shadow hover-lift animate-slide-in-up">
-      <CardHeader className="pb-2">
-        <CardTitle className="text-lg font-bold bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent">
+    <Card className="component-card gradient-shadow hover-lift animate-slide-in-up overflow-hidden">
+      <CardHeader className="pb-4">
+        <CardTitle className="text-xl font-bold text-gray-900">
           Communication Center
         </CardTitle>
       </CardHeader>
-      <CardContent>
-        <div className="mb-6">
-          <h3 className="text-sm font-bold mb-3 text-gray-700">Latest Updates</h3>
-          {updates.map((update, index) => (
-            <UpdateItem
-              key={index}
-              title={update.title}
-              timestamp={update.timestamp}
-              timeAgo={update.timeAgo}
-            />
-          ))}
+      <CardContent className="space-y-6">
+        <div>
+          <h3 className="text-sm font-bold mb-4 text-gray-700">Latest Updates</h3>
+          <div className="space-y-3">
+            {updates.map((update, index) => (
+              <UpdateItem
+                key={index}
+                title={update.title}
+                timestamp={update.timestamp}
+                timeAgo={update.timeAgo}
+              />
+            ))}
+          </div>
         </div>
         
         <div>
           <h3 className="text-sm font-bold mb-4 text-gray-700">Quick Actions</h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <ActionButton 
-              icon={<MessageSquare className="w-4 h-4" />}
-              label="Contact Support"
+          <div className="grid grid-cols-2 gap-4">
+            <Button 
+              variant="outline"
+              className="h-20 bg-white/80 border-gray-200/50 hover:bg-gray-50/80 hover:border-gray-300/50 shadow-sm hover:shadow-md transition-all duration-300 hover-lift flex flex-col items-center justify-center gap-2 rounded-xl"
+              onClick={handleScheduleMeeting}
+            >
+              <div className="w-8 h-8 bg-blue-100/70 rounded-lg flex items-center justify-center">
+                <Calendar className="w-4 h-4 text-blue-600" />
+              </div>
+              <span className="text-sm font-medium text-gray-700">Schedule Meeting</span>
+            </Button>
+            
+            <Button 
+              variant="outline"
+              className="h-20 bg-white/80 border-gray-200/50 hover:bg-gray-50/80 hover:border-gray-300/50 shadow-sm hover:shadow-md transition-all duration-300 hover-lift flex flex-col items-center justify-center gap-2 rounded-xl"
               onClick={handleContactSupport}
-            />
-            <div className="md:col-span-2">
-              <Button 
-                className="w-full bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-semibold py-3 px-6 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 hover-lift flex items-center justify-center gap-2"
-                onClick={handleScheduleMeeting}
-              >
-                <Calendar className="w-5 h-5" />
-                Schedule Meeting
-              </Button>
-            </div>
+            >
+              <div className="w-8 h-8 bg-blue-100/70 rounded-lg flex items-center justify-center">
+                <MessageSquare className="w-4 h-4 text-blue-600" />
+              </div>
+              <span className="text-sm font-medium text-gray-700">Contact Support</span>
+            </Button>
           </div>
         </div>
       </CardContent>
