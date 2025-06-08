@@ -72,11 +72,6 @@ export const TicketCreationModal: React.FC<TicketCreationModalProps> = ({
               <button className="text-blue-600 border-b-2 border-blue-600 pb-2 px-1 font-bold transition-colors duration-200">
                 Task
               </button>
-              <button className="text-gray-500 pb-2 px-1 hover:text-blue-600 transition-colors duration-200 font-medium">Doc</button>
-              <button className="text-gray-500 pb-2 px-1 hover:text-blue-600 transition-colors duration-200 font-medium">Reminder</button>
-              <button className="text-gray-500 pb-2 px-1 hover:text-blue-600 transition-colors duration-200 font-medium">Chat</button>
-              <button className="text-gray-500 pb-2 px-1 hover:text-blue-600 transition-colors duration-200 font-medium">Whiteboard</button>
-              <button className="text-gray-500 pb-2 px-1 hover:text-blue-600 transition-colors duration-200 font-medium">Dashboard</button>
             </div>
             <DialogTitle className="sr-only">Create New Ticket</DialogTitle>
           </div>
@@ -158,23 +153,10 @@ export const TicketCreationModal: React.FC<TicketCreationModalProps> = ({
             </div>
           </div>
 
-          <div className="flex justify-between items-center pt-4 border-t animate-fade-in-up animate-stagger-3" style={{ animationFillMode: 'both' }}>
-            <div className="flex items-center gap-4">
-              <Button type="button" variant="ghost" className="text-sm transition-all duration-200 hover-lift font-medium">
-                📋 Templates
-              </Button>
-            </div>
-            <div className="flex items-center gap-2">
-              <Button type="button" variant="ghost" size="sm" className="transition-all duration-200 hover-lift">
-                📎
-              </Button>
-              <Button type="button" variant="ghost" size="sm" className="transition-all duration-200 hover-lift">
-                🔔 1
-              </Button>
-              <Button type="submit" className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 transition-all duration-300 hover-lift shadow-lg">
-                Create Task
-              </Button>
-            </div>
+          <div className="flex justify-end items-center pt-4 border-t animate-fade-in-up animate-stagger-3" style={{ animationFillMode: 'both' }}>
+            <Button type="submit" className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 transition-all duration-300 hover-lift shadow-lg">
+              Create Task
+            </Button>
           </div>
         </form>
       </DialogContent>

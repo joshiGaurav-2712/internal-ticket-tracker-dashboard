@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo } from 'react';
 import { Navigation } from "@/components/Navigation";
 import { SummaryCards } from "@/components/SummaryCards";
@@ -109,12 +108,29 @@ const Index = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [sortField, setSortField] = useState<string>('');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
+  const [lastTicketUpdate, setLastTicketUpdate] = useState<Date>(new Date());
   const [filters, setFilters] = useState<FilterState>({
     searchText: '',
     ticketStatus: 'all',
     priority: 'all',
     tatStatus: 'all'
   });
+
+  // Calculate total time spent from all tickets
+  const calculateTotalTimeSpent = (ticketList: Ticket[]): string => {
+    let totalMinutes = 0;
+    
+    ticketList.forEach(ticket => {
+      const timeTaken = ticket.timeTaken || '0h';
+      const match = timeTaken.match(/(\d+)h/);
+      if (match) {
+        totalMinutes += parseInt(match[1]) * 60;
+      }
+    });
+    
+    const hours = Math.floor(totalMinutes / 60);
+    return `${hours}.${Math.round(((totalMinutes % 60) / 60) * 100).toString().padStart(2, '0')} Hrs`;
+  };
 
   // Filter and sort tickets
   const filteredAndSortedTickets = useMemo(() => {
@@ -190,7 +206,7 @@ const Index = () => {
     return filtered;
   }, [tickets, filters, sortField, sortDirection]);
 
-  // Calculate summary statistics
+  // Calculate summary statistics with dynamic time calculation
   const summaryStats = useMemo(() => {
     const total = tickets.length;
     const open = tickets.filter(t => t.status === 'Open').length;
@@ -202,7 +218,7 @@ const Index = () => {
       open,
       completed,
       inProgress,
-      timeSpent: "767.48 Hrs"
+      timeSpent: calculateTotalTimeSpent(tickets)
     };
   }, [tickets]);
 
@@ -242,6 +258,7 @@ const Index = () => {
       ...ticketData
     };
     setTickets(prev => [newTicket, ...prev]);
+    setLastTicketUpdate(new Date());
   };
 
   const handleTicketStatusChange = (ticketId: string, newStatus: Ticket['status']) => {
@@ -250,6 +267,7 @@ const Index = () => {
         ? { ...ticket, status: newStatus, tatStatus: newStatus === 'Completed' ? 'Done' : ticket.tatStatus }
         : ticket
     ));
+    setLastTicketUpdate(new Date());
   };
 
   const handleTicketPriorityChange = (ticketId: string, newPriority: Ticket['priority']) => {
@@ -258,6 +276,7 @@ const Index = () => {
         ? { ...ticket, priority: newPriority }
         : ticket
     ));
+    setLastTicketUpdate(new Date());
   };
 
   const handleTicketUpdate = (ticketId: string, updatedTicket: Partial<Ticket>) => {
@@ -266,10 +285,12 @@ const Index = () => {
         ? { ...ticket, ...updatedTicket }
         : ticket
     ));
+    setLastTicketUpdate(new Date());
   };
 
   const handleTicketDelete = (ticketId: string) => {
     setTickets(prev => prev.filter(ticket => ticket.id !== ticketId));
+    setLastTicketUpdate(new Date());
     // If we're deleting the ticket that's currently being edited, clear the editing state
     if (editingTicketId === ticketId) {
       setEditingTicketId(null);
@@ -304,7 +325,7 @@ const Index = () => {
             </h2>
             <p className="text-gray-600 font-medium mt-2">Overview of your projects and tickets</p>
           </div>
-          <LastUpdated />
+          <LastUpdated lastTicketUpdate={lastTicketUpdate} />
         </div>
         
         <div className="mb-10 animate-fade-in-up animate-stagger-1" style={{ animationFillMode: 'both' }}>

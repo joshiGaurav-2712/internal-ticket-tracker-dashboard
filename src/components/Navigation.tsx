@@ -33,7 +33,7 @@ export const Navigation: React.FC<NavigationProps> = ({ onCreateTicket }) => {
     <nav className="flex items-center justify-between px-8 py-6 component-card gradient-shadow border-b animate-fade-in-down">
       <div className="flex items-center gap-8">
         <div className="flex items-center">
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-500 to-purple-600 bg-clip-text text-transparent tracking-tight">
+          <h1 className="text-4xl font-bold text-purple-600 tracking-tight">
             Troopod
           </h1>
         </div>

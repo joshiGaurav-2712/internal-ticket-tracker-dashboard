@@ -1,11 +1,36 @@
 
 import { RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
-export const LastUpdated: React.FC = () => {
-  const [lastUpdated, setLastUpdated] = useState<string>("April 8, 2025 - 10:45 AM");
+interface LastUpdatedProps {
+  lastTicketUpdate?: Date;
+}
+
+export const LastUpdated: React.FC<LastUpdatedProps> = ({ lastTicketUpdate }) => {
+  const [lastUpdated, setLastUpdated] = useState<string>("");
   const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
+
+  useEffect(() => {
+    const updateTimestamp = () => {
+      if (lastTicketUpdate) {
+        const formattedTime = lastTicketUpdate.toLocaleDateString('en-US', { 
+          year: 'numeric',
+          month: 'long', 
+          day: 'numeric'
+        }) + ' - ' + lastTicketUpdate.toLocaleTimeString('en-US', {
+          hour: '2-digit',
+          minute: '2-digit',
+          hour12: true
+        });
+        setLastUpdated(formattedTime);
+      } else {
+        setLastUpdated("April 8, 2025 - 10:45 AM");
+      }
+    };
+
+    updateTimestamp();
+  }, [lastTicketUpdate]);
 
   const handleRefresh = (): void => {
     setIsRefreshing(true);
