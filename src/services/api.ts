@@ -45,24 +45,26 @@ class ApiService {
     };
 
     try {
+      console.log(`Making API request: ${options.method || 'GET'} ${url}`);
       const response = await fetch(url, config);
       
-      if (response.status === 401 && this.refreshToken) {
-        // Try to refresh token
+      if (response.status === 401 && this.refreshToken && endpoint !== '/api/token/refresh/') {
+        console.log('Access token expired, attempting refresh...');
         const refreshed = await this.refreshAccessToken();
         if (refreshed) {
-          // Retry the original request with new token
           config.headers = {
             ...config.headers,
             'Authorization': `Bearer ${this.accessToken}`,
           };
           const retryResponse = await fetch(url, config);
           const data = retryResponse.ok ? await retryResponse.json() : null;
+          console.log('Retry response status:', retryResponse.status);
           return { data, status: retryResponse.status };
         }
       }
 
       const data = response.ok ? await response.json() : null;
+      console.log('API response status:', response.status, 'Data:', data);
       return { data, status: response.status };
     } catch (error) {
       console.error('API request failed:', error);
@@ -71,6 +73,7 @@ class ApiService {
   }
 
   async login(username: string, password: string): Promise<boolean> {
+    console.log('Attempting login for username:', username);
     const response = await this.makeRequest<AuthTokens>('/api/token/', {
       method: 'POST',
       body: JSON.stringify({ username, password }),
@@ -83,14 +86,19 @@ class ApiService {
       localStorage.setItem('access_token', this.accessToken);
       localStorage.setItem('refresh_token', this.refreshToken);
       
+      console.log('Login successful');
       return true;
     }
     
+    console.log('Login failed with status:', response.status);
     return false;
   }
 
   async refreshAccessToken(): Promise<boolean> {
-    if (!this.refreshToken) return false;
+    if (!this.refreshToken) {
+      console.log('No refresh token available');
+      return false;
+    }
 
     const response = await this.makeRequest<{ access: string }>('/api/token/refresh/', {
       method: 'POST',
@@ -100,13 +108,17 @@ class ApiService {
     if (response.data && response.status === 200) {
       this.accessToken = response.data.access;
       localStorage.setItem('access_token', this.accessToken);
+      console.log('Token refreshed successfully');
       return true;
     }
 
+    console.log('Token refresh failed');
+    this.logout(); // Clear invalid tokens
     return false;
   }
 
   logout(): void {
+    console.log('Logging out');
     this.accessToken = null;
     this.refreshToken = null;
     localStorage.removeItem('access_token');

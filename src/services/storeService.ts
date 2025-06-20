@@ -11,7 +11,10 @@ export interface Store {
 
 class StoreService {
   async getAllStores() {
-    return apiService.get<Store[]>('/store/');
+    console.log('Fetching all stores...');
+    const response = await apiService.get<Store[]>('/store/');
+    console.log('Stores response:', response);
+    return response;
   }
 }
 

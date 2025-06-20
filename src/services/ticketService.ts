@@ -52,26 +52,34 @@ export interface AddWorklogRequest {
 
 class TicketService {
   async getAllTickets() {
-    return apiService.get<ApiTicket[]>('/techservices/api/tickets/');
+    console.log('Fetching all tickets...');
+    const response = await apiService.get<ApiTicket[]>('/techservices/api/tickets/');
+    console.log('Tickets response:', response);
+    return response;
   }
 
   async getTicketById(id: number) {
+    console.log('Fetching ticket by ID:', id);
     return apiService.get<ApiTicket>(`/techservices/api/tickets/${id}/`);
   }
 
   async createTicket(ticketData: CreateTicketRequest) {
+    console.log('Creating ticket:', ticketData);
     return apiService.post<ApiTicket>('/techservices/api/tickets/create/', ticketData);
   }
 
   async updateTicket(id: number, ticketData: UpdateTicketRequest) {
+    console.log('Updating ticket:', id, ticketData);
     return apiService.put<ApiTicket>(`/techservices/api/tickets/update/${id}/`, ticketData);
   }
 
   async deleteTicket(id: number) {
+    console.log('Deleting ticket:', id);
     return apiService.delete(`/techservices/api/tickets/delete/${id}/`);
   }
 
   async addWorklog(id: number, worklogData: AddWorklogRequest) {
+    console.log('Adding worklog to ticket:', id, worklogData);
     return apiService.post<WorklogEntry>(`/techservices/api/tickets/${id}/add_worklog/`, worklogData);
   }
 

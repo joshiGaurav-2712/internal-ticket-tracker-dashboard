@@ -44,30 +44,51 @@ const Index = () => {
     tatStatus: 'all'
   });
 
-  // Fetch tickets
+  // Fetch tickets with better error handling
   const { data: ticketsResponse, isLoading: ticketsLoading, error: ticketsError } = useQuery({
     queryKey: ['tickets'],
     queryFn: () => ticketService.getAllTickets(),
     enabled: isAuthenticated,
+    retry: (failureCount, error) => {
+      console.log('Tickets query failed:', error);
+      return failureCount < 2;
+    },
   });
 
-  // Fetch users
-  const { data: usersResponse } = useQuery({
+  // Fetch users with better error handling
+  const { data: usersResponse, error: usersError } = useQuery({
     queryKey: ['users'],
     queryFn: () => userService.getAllUsers(),
     enabled: isAuthenticated,
+    retry: (failureCount, error) => {
+      console.log('Users query failed:', error);
+      return failureCount < 2;
+    },
   });
 
-  // Fetch stores
-  const { data: storesResponse } = useQuery({
+  // Fetch stores with better error handling
+  const { data: storesResponse, error: storesError } = useQuery({
     queryKey: ['stores'],
     queryFn: () => storeService.getAllStores(),
     enabled: isAuthenticated,
+    retry: (failureCount, error) => {
+      console.log('Stores query failed:', error);
+      return failureCount < 2;
+    },
   });
 
   const users = usersResponse?.data || [];
   const stores = storesResponse?.data || [];
   const apiTickets = ticketsResponse?.data || [];
+
+  console.log('Dashboard data:', {
+    tickets: apiTickets.length,
+    users: users.length,
+    stores: stores.length,
+    ticketsError,
+    usersError,
+    storesError
+  });
 
   // Convert API tickets to frontend format
   const tickets: Ticket[] = useMemo(() => {
@@ -239,6 +260,8 @@ const Index = () => {
 
   const handleCreateTicketFromModal = async (ticketData: Omit<Ticket, 'id'>) => {
     try {
+      console.log('Creating ticket from modal:', ticketData);
+      
       // Convert frontend ticket format to API format
       const createRequest = {
         task: ticketData.title,
@@ -252,16 +275,17 @@ const Index = () => {
         assigned_to: users.find(u => u.name === ticketData.assignedTo || u.username === ticketData.assignedTo)?.id || users[0]?.id || 1,
       };
 
+      console.log('Create request payload:', createRequest);
       const response = await ticketService.createTicket(createRequest);
       
-      if (response.data) {
+      if (response.data && response.status === 201) {
         await queryClient.invalidateQueries({ queryKey: ['tickets'] });
         toast({
           title: "Success",
           description: "Ticket created successfully!",
         });
       } else {
-        throw new Error('Failed to create ticket');
+        throw new Error(`Failed to create ticket: ${response.status}`);
       }
     } catch (error) {
       console.error('Error creating ticket:', error);
@@ -275,10 +299,14 @@ const Index = () => {
 
   const handleTicketStatusChange = async (ticketId: string, newStatus: Ticket['status']) => {
     try {
+      console.log('Updating ticket status:', ticketId, newStatus);
       const ticketNumber = parseInt(ticketId.replace('#', ''));
       const apiTicket = apiTickets.find(t => t.id === ticketNumber);
       
-      if (!apiTicket) return;
+      if (!apiTicket) {
+        console.error('Ticket not found:', ticketNumber);
+        return;
+      }
 
       const statusMap = {
         'Open': 'pending' as const,
@@ -296,13 +324,18 @@ const Index = () => {
         assigned_to: apiTicket.assigned_to,
       };
 
-      await ticketService.updateTicket(ticketNumber, updateRequest);
-      await queryClient.invalidateQueries({ queryKey: ['tickets'] });
+      console.log('Status update request:', updateRequest);
+      const response = await ticketService.updateTicket(ticketNumber, updateRequest);
       
-      toast({
-        title: "Success",
-        description: "Ticket status updated successfully!",
-      });
+      if (response.status === 200) {
+        await queryClient.invalidateQueries({ queryKey: ['tickets'] });
+        toast({
+          title: "Success",
+          description: "Ticket status updated successfully!",
+        });
+      } else {
+        throw new Error(`Update failed: ${response.status}`);
+      }
     } catch (error) {
       console.error('Error updating ticket status:', error);
       toast({
@@ -315,10 +348,14 @@ const Index = () => {
 
   const handleTicketPriorityChange = async (ticketId: string, newPriority: Ticket['priority']) => {
     try {
+      console.log('Updating ticket priority:', ticketId, newPriority);
       const ticketNumber = parseInt(ticketId.replace('#', ''));
       const apiTicket = apiTickets.find(t => t.id === ticketNumber);
       
-      if (!apiTicket) return;
+      if (!apiTicket) {
+        console.error('Ticket not found:', ticketNumber);
+        return;
+      }
 
       const priorityMap = {
         'SOS': 'bug' as const,
@@ -337,13 +374,18 @@ const Index = () => {
         assigned_to: apiTicket.assigned_to,
       };
 
-      await ticketService.updateTicket(ticketNumber, updateRequest);
-      await queryClient.invalidateQueries({ queryKey: ['tickets'] });
+      console.log('Priority update request:', updateRequest);
+      const response = await ticketService.updateTicket(ticketNumber, updateRequest);
       
-      toast({
-        title: "Success",
-        description: "Ticket priority updated successfully!",
-      });
+      if (response.status === 200) {
+        await queryClient.invalidateQueries({ queryKey: ['tickets'] });
+        toast({
+          title: "Success",
+          description: "Ticket priority updated successfully!",
+        });
+      } else {
+        throw new Error(`Update failed: ${response.status}`);
+      }
     } catch (error) {
       console.error('Error updating ticket priority:', error);
       toast({
@@ -356,10 +398,14 @@ const Index = () => {
 
   const handleTicketUpdate = async (ticketId: string, updatedTicket: Partial<Ticket>) => {
     try {
+      console.log('Updating ticket:', ticketId, updatedTicket);
       const ticketNumber = parseInt(ticketId.replace('#', ''));
       const apiTicket = apiTickets.find(t => t.id === ticketNumber);
       
-      if (!apiTicket) return;
+      if (!apiTicket) {
+        console.error('Ticket not found:', ticketNumber);
+        return;
+      }
 
       const updateRequest = {
         task: updatedTicket.title || apiTicket.task,
@@ -371,13 +417,18 @@ const Index = () => {
         assigned_to: users.find(u => u.name === updatedTicket.assignedTo || u.username === updatedTicket.assignedTo)?.id || apiTicket.assigned_to,
       };
 
-      await ticketService.updateTicket(ticketNumber, updateRequest);
-      await queryClient.invalidateQueries({ queryKey: ['tickets'] });
+      console.log('General update request:', updateRequest);
+      const response = await ticketService.updateTicket(ticketNumber, updateRequest);
       
-      toast({
-        title: "Success",
-        description: "Ticket updated successfully!",
-      });
+      if (response.status === 200) {
+        await queryClient.invalidateQueries({ queryKey: ['tickets'] });
+        toast({
+          title: "Success",
+          description: "Ticket updated successfully!",
+        });
+      } else {
+        throw new Error(`Update failed: ${response.status}`);
+      }
     } catch (error) {
       console.error('Error updating ticket:', error);
       toast({
@@ -390,19 +441,25 @@ const Index = () => {
 
   const handleTicketDelete = async (ticketId: string) => {
     try {
+      console.log('Deleting ticket:', ticketId);
       const ticketNumber = parseInt(ticketId.replace('#', ''));
       
-      await ticketService.deleteTicket(ticketNumber);
-      await queryClient.invalidateQueries({ queryKey: ['tickets'] });
+      const response = await ticketService.deleteTicket(ticketNumber);
       
-      if (editingTicketId === ticketId) {
-        setEditingTicketId(null);
+      if (response.status === 204 || response.status === 200) {
+        await queryClient.invalidateQueries({ queryKey: ['tickets'] });
+        
+        if (editingTicketId === ticketId) {
+          setEditingTicketId(null);
+        }
+        
+        toast({
+          title: "Success",
+          description: "Ticket deleted successfully!",
+        });
+      } else {
+        throw new Error(`Delete failed: ${response.status}`);
       }
-      
-      toast({
-        title: "Success",
-        description: "Ticket deleted successfully!",
-      });
     } catch (error) {
       console.error('Error deleting ticket:', error);
       toast({
@@ -442,10 +499,17 @@ const Index = () => {
     return <LoginForm />;
   }
 
-  if (ticketsError) {
+  if (ticketsError || usersError || storesError) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="text-red-600">Error loading tickets. Please try again.</div>
+        <div className="text-red-600">
+          <p>Error loading data. Please try again.</p>
+          <p className="text-sm mt-2">
+            {ticketsError && 'Tickets: Failed to load'}
+            {usersError && 'Users: Failed to load'}
+            {storesError && 'Stores: Failed to load'}
+          </p>
+        </div>
       </div>
     );
   }
