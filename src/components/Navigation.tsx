@@ -1,7 +1,14 @@
 
 import { Button } from "@/components/ui/button";
-import { Plus, User } from "lucide-react";
+import { Plus, User, LogOut } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useAuth } from "@/hooks/useAuth";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 interface NavLinkProps {
   to: string;
@@ -25,8 +32,10 @@ const NavLink: React.FC<NavLinkProps> = ({ to, children, isActive = false }) => 
 );
 
 export const Navigation: React.FC<NavigationProps> = ({ onCreateTicket }) => {
-  const handleUserMenu = (): void => {
-    console.log('User menu clicked');
+  const { logout } = useAuth();
+
+  const handleLogout = (): void => {
+    logout();
   };
 
   return (
@@ -52,14 +61,23 @@ export const Navigation: React.FC<NavigationProps> = ({ onCreateTicket }) => {
           <Plus className="w-4 h-4 mr-2" />
           Create New Ticket
         </Button>
-        <Button 
-          variant="ghost" 
-          size="icon" 
-          className="rounded-full hover-lift transition-all duration-300"
-          onClick={handleUserMenu}
-        >
-          <User className="w-5 h-5" />
-        </Button>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              className="rounded-full hover-lift transition-all duration-300"
+            >
+              <User className="w-5 h-5" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-48">
+            <DropdownMenuItem onClick={handleLogout} className="text-red-600">
+              <LogOut className="w-4 h-4 mr-2" />
+              Logout
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
     </nav>
   );

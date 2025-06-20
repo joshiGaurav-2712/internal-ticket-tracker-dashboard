@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Navigation } from "@/components/Navigation";
 import { SummaryCards } from "@/components/SummaryCards";
 import { StatusOverview } from "@/components/StatusOverview";
@@ -8,88 +8,14 @@ import { TicketTable } from "@/components/TicketTable";
 import { LastUpdated } from "@/components/LastUpdated";
 import { CommunicationCenter } from "@/components/CommunicationCenter";
 import { TicketCreationModal } from "@/components/TicketCreationModal";
+import { LoginForm } from "@/components/LoginForm";
 import { Ticket } from "@/types";
-
-// Updated dummy ticket data with new fields
-const dummyTickets: Ticket[] = [
-  {
-    id: "#54",
-    priority: "SOS",
-    title: "API Integration Fix",
-    status: "In Progress",
-    tatStatus: "2h left",
-    timeCreated: "4 hours ago",
-    assignedTo: "David Thompson",
-    brandName: "TechCorp",
-    timeTaken: "2h"
-  },
-  {
-    id: "#55",
-    priority: "SOS",
-    title: "Payment Gateway Error",
-    status: "Open",
-    tatStatus: "3h left",
-    timeCreated: "6 hours ago",
-    assignedTo: "Sophia Wilson",
-    brandName: "FinanceHub",
-    timeTaken: "1h"
-  },
-  {
-    id: "#53",
-    priority: "Medium",
-    title: "Page Optimization",
-    status: "Completed",
-    tatStatus: "Done",
-    timeCreated: "1 day, 16 hours ago",
-    assignedTo: "James Rodriguez",
-    brandName: "WebSolutions",
-    timeTaken: "8h"
-  },
-  {
-    id: "#52",
-    priority: "High",
-    title: "Meet with kreo",
-    status: "Completed",
-    tatStatus: "Done",
-    timeCreated: "5 days, 23 hours ago",
-    assignedTo: "Emily Johnson",
-    brandName: "Kreo Inc",
-    timeTaken: "3h"
-  },
-  {
-    id: "#51",
-    priority: "Low",
-    title: "Protouch Meet",
-    status: "Completed",
-    tatStatus: "Done",
-    timeCreated: "5 days, 23 hours ago",
-    assignedTo: "Michael Chen",
-    brandName: "Protouch",
-    timeTaken: "2h"
-  },
-  {
-    id: "#56",
-    priority: "High",
-    title: "Database Migration",
-    status: "Open",
-    tatStatus: "1 day left",
-    timeCreated: "2 hours ago",
-    assignedTo: "Alex Smith",
-    brandName: "DataFlow",
-    timeTaken: "0h"
-  },
-  {
-    id: "#57",
-    priority: "Low",
-    title: "UI Updates",
-    status: "In Progress",
-    tatStatus: "5h left",
-    timeCreated: "1 day ago",
-    assignedTo: "Sarah Johnson",
-    brandName: "DesignCo",
-    timeTaken: "4h"
-  }
-];
+import { useAuth } from '@/hooks/useAuth';
+import { ticketService, ApiTicket } from '@/services/ticketService';
+import { userService, User } from '@/services/userService';
+import { storeService, Store } from '@/services/storeService';
+import { useToast } from '@/hooks/use-toast';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 
 type TicketStatus = 'all' | 'open' | 'in-progress' | 'completed';
 type Priority = 'all' | 'low' | 'medium' | 'high' | 'sos';
@@ -103,18 +29,65 @@ interface FilterState {
 }
 
 const Index = () => {
-  const [tickets, setTickets] = useState<Ticket[]>(dummyTickets);
+  const { isAuthenticated, loading: authLoading } = useAuth();
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+  
   const [editingTicketId, setEditingTicketId] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [sortField, setSortField] = useState<string>('');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
-  const [lastTicketUpdate, setLastTicketUpdate] = useState<Date>(new Date());
   const [filters, setFilters] = useState<FilterState>({
     searchText: '',
     ticketStatus: 'all',
     priority: 'all',
     tatStatus: 'all'
   });
+
+  // Fetch tickets
+  const { data: ticketsResponse, isLoading: ticketsLoading, error: ticketsError } = useQuery({
+    queryKey: ['tickets'],
+    queryFn: () => ticketService.getAllTickets(),
+    enabled: isAuthenticated,
+  });
+
+  // Fetch users
+  const { data: usersResponse } = useQuery({
+    queryKey: ['users'],
+    queryFn: () => userService.getAllUsers(),
+    enabled: isAuthenticated,
+  });
+
+  // Fetch stores
+  const { data: storesResponse } = useQuery({
+    queryKey: ['stores'],
+    queryFn: () => storeService.getAllStores(),
+    enabled: isAuthenticated,
+  });
+
+  const users = usersResponse?.data || [];
+  const stores = storesResponse?.data || [];
+  const apiTickets = ticketsResponse?.data || [];
+
+  // Convert API tickets to frontend format
+  const tickets: Ticket[] = useMemo(() => {
+    return apiTickets.map(apiTicket => 
+      ticketService.convertApiTicketToFrontend(apiTicket, users, stores)
+    );
+  }, [apiTickets, users, stores]);
+
+  // Calculate last ticket update
+  const lastTicketUpdate = useMemo(() => {
+    if (apiTickets.length === 0) return new Date();
+    
+    const latestTicket = apiTickets.reduce((latest, ticket) => {
+      const ticketUpdate = new Date(ticket.updated_at);
+      const latestUpdate = new Date(latest.updated_at);
+      return ticketUpdate > latestUpdate ? ticket : latest;
+    });
+    
+    return new Date(latestTicket.updated_at);
+  }, [apiTickets]);
 
   // Calculate total time spent from all tickets
   const calculateTotalTimeSpent = (ticketList: Ticket[]): string => {
@@ -206,19 +179,32 @@ const Index = () => {
     return filtered;
   }, [tickets, filters, sortField, sortDirection]);
 
-  // Calculate summary statistics with dynamic time calculation
+  // Calculate summary statistics
   const summaryStats = useMemo(() => {
     const total = tickets.length;
     const open = tickets.filter(t => t.status === 'Open').length;
     const completed = tickets.filter(t => t.status === 'Completed').length;
     const inProgress = tickets.filter(t => t.status === 'In Progress').length;
     
+    // Calculate total time spent from all tickets
+    let totalMinutes = 0;
+    tickets.forEach(ticket => {
+      const timeTaken = ticket.timeTaken || '0h';
+      const match = timeTaken.match(/(\d+)h/);
+      if (match) {
+        totalMinutes += parseInt(match[1]) * 60;
+      }
+    });
+    
+    const hours = Math.floor(totalMinutes / 60);
+    const timeSpent = `${hours}.${Math.round(((totalMinutes % 60) / 60) * 100).toString().padStart(2, '0')} Hrs`;
+    
     return {
       total,
       open,
       completed,
       inProgress,
-      timeSpent: calculateTotalTimeSpent(tickets)
+      timeSpent
     };
   }, [tickets]);
 
@@ -251,49 +237,179 @@ const Index = () => {
     setIsModalOpen(true);
   };
 
-  const handleCreateTicketFromModal = (ticketData: Omit<Ticket, 'id'>) => {
-    const newTicketId = `#${58 + tickets.length}`;
-    const newTicket: Ticket = {
-      id: newTicketId,
-      ...ticketData
-    };
-    setTickets(prev => [newTicket, ...prev]);
-    setLastTicketUpdate(new Date());
+  const handleCreateTicketFromModal = async (ticketData: Omit<Ticket, 'id'>) => {
+    try {
+      // Convert frontend ticket format to API format
+      const createRequest = {
+        task: ticketData.title,
+        description: ticketData.title, // Using title as description for now
+        expected_due_date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // Default 7 days from now
+        status: ticketData.status === 'Open' ? 'pending' as const : 
+                ticketData.status === 'In Progress' ? 'in_progress' as const : 'completed' as const,
+        category: ticketData.priority === 'SOS' ? 'bug' as const :
+                  ticketData.priority === 'High' ? 'issue' as const : 'task' as const,
+        store_id: stores.find(s => s.name === ticketData.brandName)?.id || stores[0]?.id || 1,
+        assigned_to: users.find(u => u.name === ticketData.assignedTo || u.username === ticketData.assignedTo)?.id || users[0]?.id || 1,
+      };
+
+      const response = await ticketService.createTicket(createRequest);
+      
+      if (response.data) {
+        await queryClient.invalidateQueries({ queryKey: ['tickets'] });
+        toast({
+          title: "Success",
+          description: "Ticket created successfully!",
+        });
+      } else {
+        throw new Error('Failed to create ticket');
+      }
+    } catch (error) {
+      console.error('Error creating ticket:', error);
+      toast({
+        title: "Error",
+        description: "Failed to create ticket. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
-  const handleTicketStatusChange = (ticketId: string, newStatus: Ticket['status']) => {
-    setTickets(prev => prev.map(ticket => 
-      ticket.id === ticketId 
-        ? { ...ticket, status: newStatus, tatStatus: newStatus === 'Completed' ? 'Done' : ticket.tatStatus }
-        : ticket
-    ));
-    setLastTicketUpdate(new Date());
+  const handleTicketStatusChange = async (ticketId: string, newStatus: Ticket['status']) => {
+    try {
+      const ticketNumber = parseInt(ticketId.replace('#', ''));
+      const apiTicket = apiTickets.find(t => t.id === ticketNumber);
+      
+      if (!apiTicket) return;
+
+      const statusMap = {
+        'Open': 'pending' as const,
+        'In Progress': 'in_progress' as const,
+        'Completed': 'completed' as const,
+      };
+
+      const updateRequest = {
+        task: apiTicket.task,
+        description: apiTicket.description,
+        expected_due_date: apiTicket.expected_due_date,
+        status: statusMap[newStatus],
+        category: apiTicket.category,
+        store: apiTicket.store_id,
+        assigned_to: apiTicket.assigned_to,
+      };
+
+      await ticketService.updateTicket(ticketNumber, updateRequest);
+      await queryClient.invalidateQueries({ queryKey: ['tickets'] });
+      
+      toast({
+        title: "Success",
+        description: "Ticket status updated successfully!",
+      });
+    } catch (error) {
+      console.error('Error updating ticket status:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update ticket status.",
+        variant: "destructive",
+      });
+    }
   };
 
-  const handleTicketPriorityChange = (ticketId: string, newPriority: Ticket['priority']) => {
-    setTickets(prev => prev.map(ticket => 
-      ticket.id === ticketId 
-        ? { ...ticket, priority: newPriority }
-        : ticket
-    ));
-    setLastTicketUpdate(new Date());
+  const handleTicketPriorityChange = async (ticketId: string, newPriority: Ticket['priority']) => {
+    try {
+      const ticketNumber = parseInt(ticketId.replace('#', ''));
+      const apiTicket = apiTickets.find(t => t.id === ticketNumber);
+      
+      if (!apiTicket) return;
+
+      const priorityMap = {
+        'SOS': 'bug' as const,
+        'High': 'issue' as const,
+        'Medium': 'task' as const,
+        'Low': 'enhancement' as const,
+      };
+
+      const updateRequest = {
+        task: apiTicket.task,
+        description: apiTicket.description,
+        expected_due_date: apiTicket.expected_due_date,
+        status: apiTicket.status,
+        category: priorityMap[newPriority],
+        store: apiTicket.store_id,
+        assigned_to: apiTicket.assigned_to,
+      };
+
+      await ticketService.updateTicket(ticketNumber, updateRequest);
+      await queryClient.invalidateQueries({ queryKey: ['tickets'] });
+      
+      toast({
+        title: "Success",
+        description: "Ticket priority updated successfully!",
+      });
+    } catch (error) {
+      console.error('Error updating ticket priority:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update ticket priority.",
+        variant: "destructive",
+      });
+    }
   };
 
-  const handleTicketUpdate = (ticketId: string, updatedTicket: Partial<Ticket>) => {
-    setTickets(prev => prev.map(ticket => 
-      ticket.id === ticketId 
-        ? { ...ticket, ...updatedTicket }
-        : ticket
-    ));
-    setLastTicketUpdate(new Date());
+  const handleTicketUpdate = async (ticketId: string, updatedTicket: Partial<Ticket>) => {
+    try {
+      const ticketNumber = parseInt(ticketId.replace('#', ''));
+      const apiTicket = apiTickets.find(t => t.id === ticketNumber);
+      
+      if (!apiTicket) return;
+
+      const updateRequest = {
+        task: updatedTicket.title || apiTicket.task,
+        description: updatedTicket.title || apiTicket.description,
+        expected_due_date: apiTicket.expected_due_date,
+        status: apiTicket.status,
+        category: apiTicket.category,
+        store: stores.find(s => s.name === updatedTicket.brandName)?.id || apiTicket.store_id,
+        assigned_to: users.find(u => u.name === updatedTicket.assignedTo || u.username === updatedTicket.assignedTo)?.id || apiTicket.assigned_to,
+      };
+
+      await ticketService.updateTicket(ticketNumber, updateRequest);
+      await queryClient.invalidateQueries({ queryKey: ['tickets'] });
+      
+      toast({
+        title: "Success",
+        description: "Ticket updated successfully!",
+      });
+    } catch (error) {
+      console.error('Error updating ticket:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update ticket.",
+        variant: "destructive",
+      });
+    }
   };
 
-  const handleTicketDelete = (ticketId: string) => {
-    setTickets(prev => prev.filter(ticket => ticket.id !== ticketId));
-    setLastTicketUpdate(new Date());
-    // If we're deleting the ticket that's currently being edited, clear the editing state
-    if (editingTicketId === ticketId) {
-      setEditingTicketId(null);
+  const handleTicketDelete = async (ticketId: string) => {
+    try {
+      const ticketNumber = parseInt(ticketId.replace('#', ''));
+      
+      await ticketService.deleteTicket(ticketNumber);
+      await queryClient.invalidateQueries({ queryKey: ['tickets'] });
+      
+      if (editingTicketId === ticketId) {
+        setEditingTicketId(null);
+      }
+      
+      toast({
+        title: "Success",
+        description: "Ticket deleted successfully!",
+      });
+    } catch (error) {
+      console.error('Error deleting ticket:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete ticket.",
+        variant: "destructive",
+      });
     }
   };
 
@@ -313,6 +429,26 @@ const Index = () => {
       setSortDirection('asc');
     }
   };
+
+  if (authLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-lg">Loading...</div>
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return <LoginForm />;
+  }
+
+  if (ticketsError) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-red-600">Error loading tickets. Please try again.</div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen">
@@ -353,19 +489,23 @@ const Index = () => {
               ticketCount={filteredAndSortedTickets.length}
             />
             <div className="overflow-x-auto component-card gradient-shadow rounded-xl">
-              <TicketTable 
-                tickets={filteredAndSortedTickets}
-                onStatusChange={handleTicketStatusChange}
-                onPriorityChange={handleTicketPriorityChange}
-                editingTicketId={editingTicketId}
-                onTicketUpdate={handleTicketUpdate}
-                onEditComplete={handleEditComplete}
-                onEditStart={handleEditStart}
-                onTicketDelete={handleTicketDelete}
-                onSort={handleSort}
-                sortField={sortField}
-                sortDirection={sortDirection}
-              />
+              {ticketsLoading ? (
+                <div className="p-8 text-center">Loading tickets...</div>
+              ) : (
+                <TicketTable 
+                  tickets={filteredAndSortedTickets}
+                  onStatusChange={handleTicketStatusChange}
+                  onPriorityChange={handleTicketPriorityChange}
+                  editingTicketId={editingTicketId}
+                  onTicketUpdate={handleTicketUpdate}
+                  onEditComplete={handleEditComplete}
+                  onEditStart={handleEditStart}
+                  onTicketDelete={handleTicketDelete}
+                  onSort={handleSort}
+                  sortField={sortField}
+                  sortDirection={sortDirection}
+                />
+              )}
             </div>
           </div>
         </div>
