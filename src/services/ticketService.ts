@@ -34,8 +34,14 @@ export interface CreateTicketRequest {
   assigned_to: number;
 }
 
-export interface UpdateTicketRequest extends CreateTicketRequest {
+export interface UpdateTicketRequest {
+  task: string;
+  description: string;
+  expected_due_date: string;
+  status: 'pending' | 'in_progress' | 'completed';
+  category: 'task' | 'issue' | 'bug' | 'feature' | 'enhancement';
   store: number;
+  assigned_to: number;
 }
 
 export interface AddWorklogRequest {
