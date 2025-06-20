@@ -15,17 +15,37 @@ class UserService {
     console.log('Fetching all users...');
     const response = await apiService.get<User[]>('/user/api/user_data/');
     console.log('Users response:', response);
+    
+    if (response.error) {
+      console.error('Failed to fetch users:', response.error);
+      throw new Error(response.error);
+    }
+    
     return response;
   }
 
   async getUserById(id: number) {
     console.log('Fetching user by ID:', id);
-    return apiService.get<User>(`/user/api/user_data/${id}/`);
+    const response = await apiService.get<User>(`/user/api/user_data/${id}/`);
+    
+    if (response.error) {
+      console.error('Failed to fetch user:', response.error);
+      throw new Error(response.error);
+    }
+    
+    return response;
   }
 
   async searchUsersByName(name: string) {
     console.log('Searching users by name:', name);
-    return apiService.get<User[]>(`/user/api/user_data?name=${encodeURIComponent(name)}`);
+    const response = await apiService.get<User[]>(`/user/api/user_data?name=${encodeURIComponent(name)}`);
+    
+    if (response.error) {
+      console.error('Failed to search users:', response.error);
+      throw new Error(response.error);
+    }
+    
+    return response;
   }
 }
 

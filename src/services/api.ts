@@ -48,10 +48,12 @@ class ApiService {
       console.log(`Making API request: ${options.method || 'GET'} ${url}`);
       const response = await fetch(url, config);
       
+      // Handle 401 unauthorized - attempt token refresh
       if (response.status === 401 && this.refreshToken && endpoint !== '/api/token/refresh/') {
         console.log('Access token expired, attempting refresh...');
         const refreshed = await this.refreshAccessToken();
         if (refreshed) {
+          // Retry the original request with new token
           config.headers = {
             ...config.headers,
             'Authorization': `Bearer ${this.accessToken}`,
@@ -59,16 +61,46 @@ class ApiService {
           const retryResponse = await fetch(url, config);
           const data = retryResponse.ok ? await retryResponse.json() : null;
           console.log('Retry response status:', retryResponse.status);
+          
+          if (!retryResponse.ok) {
+            return { 
+              error: `Request failed with status ${retryResponse.status}`, 
+              status: retryResponse.status 
+            };
+          }
+          
           return { data, status: retryResponse.status };
         }
       }
 
-      const data = response.ok ? await response.json() : null;
+      // Handle response
+      if (!response.ok) {
+        console.error(`API request failed with status ${response.status}`);
+        let errorMessage = `Request failed with status ${response.status}`;
+        
+        try {
+          const errorData = await response.json();
+          errorMessage = errorData.message || errorData.detail || errorMessage;
+        } catch (e) {
+          // If we can't parse error response, use default message
+        }
+        
+        return { 
+          error: errorMessage, 
+          status: response.status 
+        };
+      }
+
+      const data = await response.json();
       console.log('API response status:', response.status, 'Data:', data);
       return { data, status: response.status };
+      
     } catch (error) {
       console.error('API request failed:', error);
-      return { error: 'Network error', status: 0 };
+      return { 
+        error: error instanceof Error ? error.message : 'Network error', 
+        status: 0 
+      };
     }
   }
 

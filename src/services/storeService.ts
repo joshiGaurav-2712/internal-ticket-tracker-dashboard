@@ -14,6 +14,12 @@ class StoreService {
     console.log('Fetching all stores...');
     const response = await apiService.get<Store[]>('/store/');
     console.log('Stores response:', response);
+    
+    if (response.error) {
+      console.error('Failed to fetch stores:', response.error);
+      throw new Error(response.error);
+    }
+    
     return response;
   }
 }

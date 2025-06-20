@@ -55,32 +55,73 @@ class TicketService {
     console.log('Fetching all tickets...');
     const response = await apiService.get<ApiTicket[]>('/techservices/api/tickets/');
     console.log('Tickets response:', response);
+    
+    if (response.error) {
+      console.error('Failed to fetch tickets:', response.error);
+      throw new Error(response.error);
+    }
+    
     return response;
   }
 
   async getTicketById(id: number) {
     console.log('Fetching ticket by ID:', id);
-    return apiService.get<ApiTicket>(`/techservices/api/tickets/${id}/`);
+    const response = await apiService.get<ApiTicket>(`/techservices/api/tickets/${id}/`);
+    
+    if (response.error) {
+      console.error('Failed to fetch ticket:', response.error);
+      throw new Error(response.error);
+    }
+    
+    return response;
   }
 
   async createTicket(ticketData: CreateTicketRequest) {
     console.log('Creating ticket:', ticketData);
-    return apiService.post<ApiTicket>('/techservices/api/tickets/create/', ticketData);
+    const response = await apiService.post<ApiTicket>('/techservices/api/tickets/create/', ticketData);
+    
+    if (response.error) {
+      console.error('Failed to create ticket:', response.error);
+      throw new Error(response.error);
+    }
+    
+    return response;
   }
 
   async updateTicket(id: number, ticketData: UpdateTicketRequest) {
     console.log('Updating ticket:', id, ticketData);
-    return apiService.put<ApiTicket>(`/techservices/api/tickets/update/${id}/`, ticketData);
+    const response = await apiService.put<ApiTicket>(`/techservices/api/tickets/update/${id}/`, ticketData);
+    
+    if (response.error) {
+      console.error('Failed to update ticket:', response.error);
+      throw new Error(response.error);
+    }
+    
+    return response;
   }
 
   async deleteTicket(id: number) {
     console.log('Deleting ticket:', id);
-    return apiService.delete(`/techservices/api/tickets/delete/${id}/`);
+    const response = await apiService.delete(`/techservices/api/tickets/delete/${id}/`);
+    
+    if (response.error) {
+      console.error('Failed to delete ticket:', response.error);
+      throw new Error(response.error);
+    }
+    
+    return response;
   }
 
   async addWorklog(id: number, worklogData: AddWorklogRequest) {
     console.log('Adding worklog to ticket:', id, worklogData);
-    return apiService.post<WorklogEntry>(`/techservices/api/tickets/${id}/add_worklog/`, worklogData);
+    const response = await apiService.post<WorklogEntry>(`/techservices/api/tickets/${id}/add_worklog/`, worklogData);
+    
+    if (response.error) {
+      console.error('Failed to add worklog:', response.error);
+      throw new Error(response.error);
+    }
+    
+    return response;
   }
 
   // Helper function to convert API ticket to frontend ticket format
