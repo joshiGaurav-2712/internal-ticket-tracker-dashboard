@@ -229,13 +229,40 @@ const Index = () => {
     };
   }, [tickets]);
 
-  // Calculate TAT status statistics
+  // Calculate TAT status statistics - Fixed to be truly dynamic
   const tatStats = useMemo(() => {
-    const inProgressTickets = tickets.filter(t => t.status === 'In Progress' || t.status === 'Open');
-    const total = inProgressTickets.length;
-    const onTrack = inProgressTickets.filter(t => t.tatStatus === 'Done' || !t.tatStatus.includes('left')).length;
-    const atRisk = inProgressTickets.filter(t => t.tatStatus.includes('left') && !t.tatStatus.includes('1h')).length;
-    const delayed = inProgressTickets.filter(t => t.tatStatus.includes('1h left') || t.tatStatus.includes('30min')).length;
+    const allTickets = tickets; // Use all tickets, not just in-progress
+    const total = allTickets.length;
+    
+    // Calculate based on actual TAT status values
+    const onTrack = allTickets.filter(t => {
+      const tatStatus = t.tatStatus.toLowerCase();
+      return tatStatus === 'done' || 
+             tatStatus.includes('day') || 
+             (tatStatus.includes('h left') && !tatStatus.includes('1h left') && !tatStatus.includes('2h left'));
+    }).length;
+    
+    const atRisk = allTickets.filter(t => {
+      const tatStatus = t.tatStatus.toLowerCase();
+      return tatStatus.includes('h left') && 
+             (tatStatus.includes('3h left') || tatStatus.includes('4h left') || tatStatus.includes('5h left'));
+    }).length;
+    
+    const delayed = allTickets.filter(t => {
+      const tatStatus = t.tatStatus.toLowerCase();
+      return tatStatus === 'overdue' || 
+             tatStatus.includes('1h left') || 
+             tatStatus.includes('2h left') || 
+             tatStatus.includes('30min');
+    }).length;
+    
+    console.log('TAT Stats Calculation:', {
+      total,
+      onTrack,
+      atRisk,
+      delayed,
+      ticketsWithTatStatus: tickets.map(t => ({ id: t.id, tatStatus: t.tatStatus }))
+    });
     
     return {
       total,
@@ -486,6 +513,19 @@ const Index = () => {
       setSortDirection('asc');
     }
   };
+
+  useEffect(() => {
+    if (stores.length > 0 && apiTickets.length > 0) {
+      console.log('Store mapping debug:', {
+        stores: stores.map(s => ({ id: s.id, name: s.name })),
+        apiTickets: apiTickets.slice(0, 3).map(t => ({ 
+          id: t.id, 
+          store_id: t.store_id, 
+          matchedStore: stores.find(s => s.id === t.store_id)?.name 
+        }))
+      });
+    }
+  }, [stores, apiTickets]);
 
   if (authLoading) {
     return (

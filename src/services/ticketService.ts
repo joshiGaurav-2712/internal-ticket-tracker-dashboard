@@ -1,4 +1,3 @@
-
 import { apiService } from './api';
 import { Ticket } from '@/types';
 
@@ -124,10 +123,17 @@ class TicketService {
     return response;
   }
 
-  // Helper function to convert API ticket to frontend ticket format
+  // Enhanced helper function to convert API ticket to frontend ticket format
   convertApiTicketToFrontend(apiTicket: ApiTicket, users: any[] = [], stores: any[] = []): Ticket {
     const assignedUser = users.find(u => u.id === apiTicket.assigned_to);
     const store = stores.find(s => s.id === apiTicket.store_id);
+    
+    console.log('Converting ticket:', {
+      ticketId: apiTicket.id,
+      store_id: apiTicket.store_id,
+      foundStore: store,
+      allStores: stores.map(s => ({ id: s.id, name: s.name }))
+    });
     
     // Map API status to frontend status
     const statusMap = {
@@ -161,9 +167,10 @@ class TicketService {
       timeCreated = 'Just now';
     }
 
-    // Calculate TAT status based on due date
+    // Enhanced TAT status calculation based on due date and current status
     const dueDate = new Date(apiTicket.expected_due_date);
-    const timeToDue = dueDate.getTime() - now.getTime();
+    const now2 = new Date();
+    const timeToDue = dueDate.getTime() - now2.getTime();
     const hoursToDue = Math.floor(timeToDue / (1000 * 60 * 60));
     
     let tatStatus = '';
@@ -171,6 +178,10 @@ class TicketService {
       tatStatus = 'Done';
     } else if (hoursToDue <= 0) {
       tatStatus = 'Overdue';
+    } else if (hoursToDue <= 1) {
+      tatStatus = '1h left';
+    } else if (hoursToDue <= 2) {
+      tatStatus = '2h left';
     } else if (hoursToDue <= 24) {
       tatStatus = `${hoursToDue}h left`;
     } else {
@@ -182,7 +193,7 @@ class TicketService {
     const timeTaken = apiTicket.worklog_entries ? 
       `${apiTicket.worklog_entries.length}h` : '0h';
 
-    return {
+    const result = {
       id: `#${apiTicket.id}`,
       priority: priorityMap[apiTicket.category],
       title: apiTicket.task,
@@ -190,9 +201,12 @@ class TicketService {
       tatStatus,
       timeCreated,
       assignedTo: assignedUser?.name || assignedUser?.username || 'Unassigned',
-      brandName: store?.name || 'Default Brand',
+      brandName: store?.name || `Store ${apiTicket.store_id}`, // Fallback shows store ID if name not found
       timeTaken,
     };
+
+    console.log('Converted ticket result:', result);
+    return result;
   }
 }
 

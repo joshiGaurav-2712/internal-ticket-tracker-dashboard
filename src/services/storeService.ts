@@ -20,6 +20,11 @@ class StoreService {
       throw new Error(response.error);
     }
     
+    // Additional logging for debugging
+    if (response.data) {
+      console.log('Stores data received:', response.data.map(s => ({ id: s.id, name: s.name })));
+    }
+    
     return response;
   }
 }
