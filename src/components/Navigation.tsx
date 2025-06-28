@@ -38,6 +38,11 @@ export const Navigation: React.FC<NavigationProps> = ({ onCreateTicket }) => {
     logout();
   };
 
+  const handleCreateTicketClick = () => {
+    console.log('Create ticket button clicked');
+    onCreateTicket();
+  };
+
   return (
     <nav className="flex items-center justify-between px-8 py-6 component-card gradient-shadow border-b animate-fade-in-down">
       <div className="flex items-center gap-8">
@@ -56,7 +61,7 @@ export const Navigation: React.FC<NavigationProps> = ({ onCreateTicket }) => {
       <div className="flex items-center gap-4">
         <Button 
           className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 shadow-lg hover:shadow-xl transition-all duration-300 hover-lift"
-          onClick={onCreateTicket}
+          onClick={handleCreateTicketClick}
         >
           <Plus className="w-4 h-4 mr-2" />
           Create New Ticket
