@@ -539,16 +539,32 @@ const Index = () => {
     return <LoginForm />;
   }
 
-  if (ticketsError || usersError || storesError) {
+  // Enhanced error handling - only show error if we have critical failures AND no data at all
+  const hasCriticalError = (ticketsError && apiTickets.length === 0) || 
+                          (usersError && users.length === 0) || 
+                          (storesError && stores.length === 0);
+
+  if (hasCriticalError) {
+    console.error('Critical error detected:', { ticketsError, usersError, storesError });
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="text-red-600">
-          <p>Error loading data. Please try again.</p>
-          <p className="text-sm mt-2">
-            {ticketsError && 'Tickets: Failed to load'}
-            {usersError && 'Users: Failed to load'}
-            {storesError && 'Stores: Failed to load'}
-          </p>
+        <div className="text-red-600 text-center">
+          <p className="text-xl mb-4">Error loading data. Please try again.</p>
+          <div className="text-sm space-y-1">
+            {ticketsError && apiTickets.length === 0 && <p>Tickets: Failed to load</p>}
+            {usersError && users.length === 0 && <p>Users: Failed to load</p>}
+            {storesError && stores.length === 0 && <p>Stores: Failed to load</p>}
+          </div>
+          <button 
+            onClick={() => {
+              queryClient.invalidateQueries({ queryKey: ['tickets'] });
+              queryClient.invalidateQueries({ queryKey: ['users'] });
+              queryClient.invalidateQueries({ queryKey: ['stores'] });
+            }}
+            className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+          >
+            Retry
+          </button>
         </div>
       </div>
     );
@@ -623,6 +639,8 @@ const Index = () => {
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onCreateTicket={handleCreateTicketFromModal}
+        users={users}
+        stores={stores}
       />
     </div>
   );

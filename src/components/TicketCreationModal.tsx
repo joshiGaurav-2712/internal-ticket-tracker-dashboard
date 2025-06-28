@@ -12,17 +12,23 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Ticket } from "@/types";
+import { User } from "@/services/userService";
+import { Store } from "@/services/storeService";
 
 interface TicketCreationModalProps {
   isOpen: boolean;
   onClose: () => void;
   onCreateTicket: (ticket: Omit<Ticket, 'id'>) => void;
+  users: User[];
+  stores: Store[];
 }
 
 export const TicketCreationModal: React.FC<TicketCreationModalProps> = ({
   isOpen,
   onClose,
-  onCreateTicket
+  onCreateTicket,
+  users,
+  stores
 }) => {
   const [formData, setFormData] = useState({
     title: '',
@@ -61,6 +67,15 @@ export const TicketCreationModal: React.FC<TicketCreationModalProps> = ({
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  // Helper function to get user display name
+  const getUserDisplayName = (user: User): string => {
+    if (user.name) return user.name;
+    if (user.first_name || user.last_name) {
+      return `${user.first_name || ''} ${user.last_name || ''}`.trim();
+    }
+    return user.username;
   };
 
   return (
@@ -104,21 +119,28 @@ export const TicketCreationModal: React.FC<TicketCreationModalProps> = ({
               
               <div className="flex items-center gap-2">
                 <Label className="text-sm text-gray-600 font-medium">Assignee</Label>
-                <Input
-                  placeholder="Unassigned"
-                  value={formData.assignedTo}
-                  onChange={(e) => handleInputChange('assignedTo', e.target.value)}
-                  className="w-32 h-8 transition-all duration-200 hover-lift component-card"
-                />
+                <Select value={formData.assignedTo} onValueChange={(value) => handleInputChange('assignedTo', value)}>
+                  <SelectTrigger className="w-40 h-8 transition-all duration-200 hover-lift component-card bg-white">
+                    <SelectValue placeholder="Unassigned" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-white border shadow-lg z-50">
+                    <SelectItem value="">Unassigned</SelectItem>
+                    {users.map((user) => (
+                      <SelectItem key={user.id} value={getUserDisplayName(user)}>
+                        {getUserDisplayName(user)}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
 
               <div className="flex items-center gap-2">
                 <Label className="text-sm text-gray-600 font-medium">Priority</Label>
                 <Select value={formData.priority} onValueChange={(value) => handleInputChange('priority', value)}>
-                  <SelectTrigger className="w-32 h-8 transition-all duration-200 hover-lift component-card">
+                  <SelectTrigger className="w-32 h-8 transition-all duration-200 hover-lift component-card bg-white">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="bg-white border shadow-lg z-50">
                     <SelectItem value="SOS">SOS</SelectItem>
                     <SelectItem value="High">High</SelectItem>
                     <SelectItem value="Medium">Medium</SelectItem>
@@ -130,10 +152,10 @@ export const TicketCreationModal: React.FC<TicketCreationModalProps> = ({
               <div className="flex items-center gap-2">
                 <Label className="text-sm text-gray-600 font-medium">Status</Label>
                 <Select value={formData.status} onValueChange={(value) => handleInputChange('status', value)}>
-                  <SelectTrigger className="w-32 h-8 transition-all duration-200 hover-lift component-card">
+                  <SelectTrigger className="w-32 h-8 transition-all duration-200 hover-lift component-card bg-white">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="bg-white border shadow-lg z-50">
                     <SelectItem value="Open">Open</SelectItem>
                     <SelectItem value="In Progress">In Progress</SelectItem>
                     <SelectItem value="Completed">Completed</SelectItem>
@@ -143,12 +165,19 @@ export const TicketCreationModal: React.FC<TicketCreationModalProps> = ({
 
               <div className="flex items-center gap-2">
                 <Label className="text-sm text-gray-600 font-medium">Brand</Label>
-                <Input
-                  placeholder="Brand Name"
-                  value={formData.brandName}
-                  onChange={(e) => handleInputChange('brandName', e.target.value)}
-                  className="w-32 h-8 transition-all duration-200 hover-lift component-card"
-                />
+                <Select value={formData.brandName} onValueChange={(value) => handleInputChange('brandName', value)}>
+                  <SelectTrigger className="w-40 h-8 transition-all duration-200 hover-lift component-card bg-white">
+                    <SelectValue placeholder="Select Brand" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-white border shadow-lg z-50">
+                    <SelectItem value="">Select Brand</SelectItem>
+                    {stores.map((store) => (
+                      <SelectItem key={store.id} value={store.name}>
+                        {store.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
             </div>
           </div>
