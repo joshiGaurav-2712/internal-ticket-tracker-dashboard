@@ -229,44 +229,53 @@ const Index = () => {
     };
   }, [tickets]);
 
-  // Calculate TAT status statistics - Fixed to be truly dynamic
+  // Calculate TAT status statistics - Improved to be more accurate
   const tatStats = useMemo(() => {
-    const allTickets = tickets; // Use all tickets, not just in-progress
+    const allTickets = tickets;
     const total = allTickets.length;
     
-    // Calculate based on actual TAT status values
+    if (total === 0) {
+      return { total: 0, onTrack: 0, atRisk: 0, delayed: 0 };
+    }
+    
+    // More precise categorization based on actual TAT status values
     const onTrack = allTickets.filter(t => {
       const tatStatus = t.tatStatus.toLowerCase();
       return tatStatus === 'done' || 
-             tatStatus.includes('day') || 
-             (tatStatus.includes('h left') && !tatStatus.includes('1h left') && !tatStatus.includes('2h left'));
+             tatStatus.includes('week') ||
+             (tatStatus.includes('day') && !tatStatus.includes('1 day')) ||
+             (tatStatus.includes('h left') && parseInt(tatStatus) > 4);
     }).length;
     
     const atRisk = allTickets.filter(t => {
       const tatStatus = t.tatStatus.toLowerCase();
-      return tatStatus.includes('h left') && 
-             (tatStatus.includes('3h left') || tatStatus.includes('4h left') || tatStatus.includes('5h left'));
+      return tatStatus.includes('1 day') ||
+             (tatStatus.includes('h left') && parseInt(tatStatus) >= 2 && parseInt(tatStatus) <= 4);
     }).length;
     
     const delayed = allTickets.filter(t => {
       const tatStatus = t.tatStatus.toLowerCase();
       return tatStatus === 'overdue' || 
              tatStatus.includes('1h left') || 
-             tatStatus.includes('2h left') || 
-             tatStatus.includes('30min');
+             tatStatus.includes('30min') ||
+             (tatStatus.includes('h left') && parseInt(tatStatus) < 2);
     }).length;
+    
+    // Ensure totals add up correctly
+    const remaining = total - onTrack - atRisk - delayed;
+    const adjustedOnTrack = onTrack + Math.max(0, remaining);
     
     console.log('TAT Stats Calculation:', {
       total,
-      onTrack,
+      onTrack: adjustedOnTrack,
       atRisk,
       delayed,
-      ticketsWithTatStatus: tickets.map(t => ({ id: t.id, tatStatus: t.tatStatus }))
+      ticketsWithTatStatus: tickets.slice(0, 5).map(t => ({ id: t.id, tatStatus: t.tatStatus }))
     });
     
     return {
       total,
-      onTrack,
+      onTrack: adjustedOnTrack,
       atRisk,
       delayed
     };
@@ -299,7 +308,10 @@ const Index = () => {
         category: ticketData.priority === 'SOS' ? 'bug' as const :
                   ticketData.priority === 'High' ? 'issue' as const : 'task' as const,
         store_id: stores.find(s => s.name === ticketData.brandName)?.id || stores[0]?.id || 1,
-        assigned_to: users.find(u => u.name === ticketData.assignedTo || u.username === ticketData.assignedTo)?.id || users[0]?.id || 1,
+        assigned_to: users.find(u => {
+          const displayName = u.name || `${u.first_name || ''} ${u.last_name || ''}`.trim() || u.username;
+          return displayName === ticketData.assignedTo;
+        })?.id || users[0]?.id || 1,
       };
 
       console.log('Create request payload:', createRequest);

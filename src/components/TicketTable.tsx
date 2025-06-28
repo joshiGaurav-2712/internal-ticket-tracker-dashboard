@@ -184,6 +184,20 @@ export const TicketTable: React.FC<TicketTableProps> = ({
     setViewingTicket(null);
   };
 
+  const displayAssignedTo = (assignedTo: string | undefined) => {
+    if (!assignedTo || assignedTo.trim() === '') {
+      return 'Unassigned';
+    }
+    return assignedTo;
+  };
+
+  const displayBrandName = (brandName: string | undefined) => {
+    if (!brandName || brandName.trim() === '') {
+      return 'No Brand';
+    }
+    return brandName;
+  };
+
   if (tickets.length === 0) {
     return (
       <div className="bg-white rounded-lg shadow-sm p-8 text-center animate-scale-in hover-lift">
@@ -251,7 +265,7 @@ export const TicketTable: React.FC<TicketTableProps> = ({
                         placeholder="Brand Name"
                       />
                     ) : (
-                      ticket.brandName || "Default Brand"
+                      displayBrandName(ticket.brandName)
                     )}
                   </TableCell>
                   <TableCell>
@@ -332,8 +346,8 @@ export const TicketTable: React.FC<TicketTableProps> = ({
                         placeholder="Unassigned"
                       />
                     ) : (
-                      <div className="max-w-[120px] truncate" title={ticket.assignedTo || "Unassigned"}>
-                        {ticket.assignedTo || "Unassigned"}
+                      <div className="max-w-[120px] truncate" title={displayAssignedTo(ticket.assignedTo)}>
+                        {displayAssignedTo(ticket.assignedTo)}
                       </div>
                     )}
                   </TableCell>
