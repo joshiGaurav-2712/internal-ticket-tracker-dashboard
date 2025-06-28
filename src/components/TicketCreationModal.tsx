@@ -39,7 +39,13 @@ export const TicketCreationModal: React.FC<TicketCreationModalProps> = ({
     description: ''
   });
 
-  console.log('Modal render:', { isOpen, usersCount: users.length, storesCount: stores.length });
+  console.log('Modal render:', { 
+    isOpen, 
+    usersCount: users.length, 
+    storesCount: stores.length,
+    users: users.slice(0, 3), // Log first 3 users for debugging
+    stores: stores.slice(0, 3) // Log first 3 stores for debugging
+  });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -55,6 +61,7 @@ export const TicketCreationModal: React.FC<TicketCreationModalProps> = ({
       timeTaken: '0h'
     };
 
+    console.log('Creating ticket with data:', newTicket);
     onCreateTicket(newTicket);
     setFormData({
       title: '',
@@ -68,6 +75,7 @@ export const TicketCreationModal: React.FC<TicketCreationModalProps> = ({
   };
 
   const handleInputChange = (field: string, value: string) => {
+    console.log(`Updating ${field} to:`, value);
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
@@ -82,7 +90,7 @@ export const TicketCreationModal: React.FC<TicketCreationModalProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto animate-scale-in component-card gradient-shadow z-[10000]">
+      <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto animate-scale-in component-card gradient-shadow z-[60]">
         <DialogHeader className="border-b pb-4">
           <div className="flex items-center justify-between">
             <div className="flex gap-4">
@@ -122,15 +130,23 @@ export const TicketCreationModal: React.FC<TicketCreationModalProps> = ({
               <div className="flex items-center gap-2">
                 <Label className="text-sm text-gray-600 font-medium">Assignee</Label>
                 <Select value={formData.assignedTo} onValueChange={(value) => handleInputChange('assignedTo', value)}>
-                  <SelectTrigger className="w-40 h-8 transition-all duration-200 hover-lift component-card bg-white">
+                  <SelectTrigger className="w-40 h-8 transition-all duration-200 hover-lift component-card bg-white border shadow-sm">
                     <SelectValue placeholder="Select Assignee" />
                   </SelectTrigger>
-                  <SelectContent className="bg-white border shadow-lg z-[10001]">
-                    {users.map((user) => (
-                      <SelectItem key={user.id} value={getUserDisplayName(user)}>
-                        {getUserDisplayName(user)}
-                      </SelectItem>
-                    ))}
+                  <SelectContent className="bg-white border shadow-lg z-[70] max-h-60 overflow-y-auto">
+                    {users.length === 0 ? (
+                      <SelectItem value="loading" disabled>Loading users...</SelectItem>
+                    ) : (
+                      users.map((user) => {
+                        const displayName = getUserDisplayName(user);
+                        console.log('Rendering user option:', { user, displayName });
+                        return (
+                          <SelectItem key={user.id} value={displayName}>
+                            {displayName}
+                          </SelectItem>
+                        );
+                      })
+                    )}
                   </SelectContent>
                 </Select>
               </div>
@@ -138,10 +154,10 @@ export const TicketCreationModal: React.FC<TicketCreationModalProps> = ({
               <div className="flex items-center gap-2">
                 <Label className="text-sm text-gray-600 font-medium">Priority</Label>
                 <Select value={formData.priority} onValueChange={(value) => handleInputChange('priority', value)}>
-                  <SelectTrigger className="w-32 h-8 transition-all duration-200 hover-lift component-card bg-white">
+                  <SelectTrigger className="w-32 h-8 transition-all duration-200 hover-lift component-card bg-white border shadow-sm">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent className="bg-white border shadow-lg z-[10001]">
+                  <SelectContent className="bg-white border shadow-lg z-[70]">
                     <SelectItem value="SOS">SOS</SelectItem>
                     <SelectItem value="High">High</SelectItem>
                     <SelectItem value="Medium">Medium</SelectItem>
@@ -153,10 +169,10 @@ export const TicketCreationModal: React.FC<TicketCreationModalProps> = ({
               <div className="flex items-center gap-2">
                 <Label className="text-sm text-gray-600 font-medium">Status</Label>
                 <Select value={formData.status} onValueChange={(value) => handleInputChange('status', value)}>
-                  <SelectTrigger className="w-32 h-8 transition-all duration-200 hover-lift component-card bg-white">
+                  <SelectTrigger className="w-32 h-8 transition-all duration-200 hover-lift component-card bg-white border shadow-sm">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent className="bg-white border shadow-lg z-[10001]">
+                  <SelectContent className="bg-white border shadow-lg z-[70]">
                     <SelectItem value="Open">Open</SelectItem>
                     <SelectItem value="In Progress">In Progress</SelectItem>
                     <SelectItem value="Completed">Completed</SelectItem>
@@ -167,15 +183,22 @@ export const TicketCreationModal: React.FC<TicketCreationModalProps> = ({
               <div className="flex items-center gap-2">
                 <Label className="text-sm text-gray-600 font-medium">Brand</Label>
                 <Select value={formData.brandName} onValueChange={(value) => handleInputChange('brandName', value)}>
-                  <SelectTrigger className="w-40 h-8 transition-all duration-200 hover-lift component-card bg-white">
+                  <SelectTrigger className="w-40 h-8 transition-all duration-200 hover-lift component-card bg-white border shadow-sm">
                     <SelectValue placeholder="Select Brand" />
                   </SelectTrigger>
-                  <SelectContent className="bg-white border shadow-lg z-[10001]">
-                    {stores.map((store) => (
-                      <SelectItem key={store.id} value={store.name}>
-                        {store.name}
-                      </SelectItem>
-                    ))}
+                  <SelectContent className="bg-white border shadow-lg z-[70] max-h-60 overflow-y-auto">
+                    {stores.length === 0 ? (
+                      <SelectItem value="loading" disabled>Loading brands...</SelectItem>
+                    ) : (
+                      stores.map((store) => {
+                        console.log('Rendering store option:', store);
+                        return (
+                          <SelectItem key={store.id} value={store.name}>
+                            {store.name}
+                          </SelectItem>
+                        );
+                      })
+                    )}
                   </SelectContent>
                 </Select>
               </div>

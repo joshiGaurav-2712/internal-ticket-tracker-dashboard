@@ -9,6 +9,7 @@ import { LastUpdated } from "@/components/LastUpdated";
 import { CommunicationCenter } from "@/components/CommunicationCenter";
 import { TicketCreationModal } from "@/components/TicketCreationModal";
 import { LoginForm } from "@/components/LoginForm";
+import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { Ticket } from "@/types";
 import { useAuth } from '@/hooks/useAuth';
 import { ticketService, ApiTicket } from '@/services/ticketService';
@@ -53,10 +54,11 @@ const Index = () => {
       console.log('Tickets query failed:', error);
       return failureCount < 2;
     },
+    retryDelay: 1000,
   });
 
   // Fetch users with better error handling
-  const { data: usersResponse, error: usersError } = useQuery({
+  const { data: usersResponse, isLoading: usersLoading, error: usersError } = useQuery({
     queryKey: ['users'],
     queryFn: () => userService.getAllUsers(),
     enabled: isAuthenticated,
@@ -64,10 +66,11 @@ const Index = () => {
       console.log('Users query failed:', error);
       return failureCount < 2;
     },
+    retryDelay: 1000,
   });
 
   // Fetch stores with better error handling
-  const { data: storesResponse, error: storesError } = useQuery({
+  const { data: storesResponse, isLoading: storesLoading, error: storesError } = useQuery({
     queryKey: ['stores'],
     queryFn: () => storeService.getAllStores(),
     enabled: isAuthenticated,
@@ -75,6 +78,7 @@ const Index = () => {
       console.log('Stores query failed:', error);
       return failureCount < 2;
     },
+    retryDelay: 1000,
   });
 
   const users = usersResponse?.data || [];
@@ -85,9 +89,10 @@ const Index = () => {
     tickets: apiTickets.length,
     users: users.length,
     stores: stores.length,
-    ticketsError,
-    usersError,
-    storesError
+    ticketsError: ticketsError?.message,
+    usersError: usersError?.message,
+    storesError: storesError?.message,
+    loading: { tickets: ticketsLoading, users: usersLoading, stores: storesLoading }
   });
 
   // Convert API tickets to frontend format
@@ -542,7 +547,7 @@ const Index = () => {
   if (authLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="text-lg">Loading...</div>
+        <LoadingSpinner size="lg" text="Loading application..." />
       </div>
     );
   }
@@ -551,32 +556,47 @@ const Index = () => {
     return <LoginForm />;
   }
 
-  // Enhanced error handling - only show error if we have critical failures AND no data at all
-  const hasCriticalError = (ticketsError && apiTickets.length === 0) || 
-                          (usersError && users.length === 0) || 
-                          (storesError && stores.length === 0);
+  // Show loading state while initial data loads
+  if (ticketsLoading && usersLoading && storesLoading) {
+    return (
+      <div className="min-h-screen">
+        <Navigation onCreateTicket={handleCreateTicket} />
+        <div className="container mx-auto py-8 px-4 lg:px-6">
+          <div className="flex items-center justify-center min-h-[400px]">
+            <LoadingSpinner size="lg" text="Loading dashboard data..." />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Show error state only if all critical data fails to load
+  const hasCriticalError = ticketsError && usersError && storesError;
 
   if (hasCriticalError) {
     console.error('Critical error detected:', { ticketsError, usersError, storesError });
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-red-600 text-center">
-          <p className="text-xl mb-4">Error loading data. Please try again.</p>
-          <div className="text-sm space-y-1">
-            {ticketsError && apiTickets.length === 0 && <p>Tickets: Failed to load</p>}
-            {usersError && users.length === 0 && <p>Users: Failed to load</p>}
-            {storesError && stores.length === 0 && <p>Stores: Failed to load</p>}
+      <div className="min-h-screen">
+        <Navigation onCreateTicket={handleCreateTicket} />
+        <div className="container mx-auto py-8 px-4 lg:px-6">
+          <div className="flex items-center justify-center min-h-[400px]">
+            <div className="text-center">
+              <div className="text-red-600 text-xl mb-4">Unable to load dashboard data</div>
+              <div className="text-sm text-gray-600 mb-6">
+                Please check your internet connection and try again.
+              </div>
+              <button 
+                onClick={() => {
+                  queryClient.invalidateQueries({ queryKey: ['tickets'] });
+                  queryClient.invalidateQueries({ queryKey: ['users'] });
+                  queryClient.invalidateQueries({ queryKey: ['stores'] });
+                }}
+                className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+              >
+                Retry
+              </button>
+            </div>
           </div>
-          <button 
-            onClick={() => {
-              queryClient.invalidateQueries({ queryKey: ['tickets'] });
-              queryClient.invalidateQueries({ queryKey: ['users'] });
-              queryClient.invalidateQueries({ queryKey: ['stores'] });
-            }}
-            className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-          >
-            Retry
-          </button>
         </div>
       </div>
     );
@@ -622,7 +642,9 @@ const Index = () => {
             />
             <div className="overflow-x-auto component-card gradient-shadow rounded-xl">
               {ticketsLoading ? (
-                <div className="p-8 text-center">Loading tickets...</div>
+                <div className="p-8 text-center">
+                  <LoadingSpinner text="Loading tickets..." />
+                </div>
               ) : (
                 <TicketTable 
                   tickets={filteredAndSortedTickets}

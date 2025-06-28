@@ -1,4 +1,3 @@
-
 const API_BASE_URL = 'https://api.prod.troopod.io';
 
 interface AuthTokens {
@@ -36,6 +35,7 @@ class ApiService {
     
     const defaultHeaders: Record<string, string> = {
       'Content-Type': 'application/json',
+      'Accept': 'application/json',
     };
 
     // Always add Authorization header if we have a token
@@ -46,6 +46,8 @@ class ApiService {
 
     const config: RequestInit = {
       ...options,
+      mode: 'cors',
+      credentials: 'omit',
       headers: {
         ...defaultHeaders,
         ...options.headers,
@@ -57,8 +59,17 @@ class ApiService {
         hasAuth: !!defaultHeaders['Authorization'],
         headers: config.headers
       });
+
+      // Add timeout for requests
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
       
-      const response = await fetch(url, config);
+      const response = await fetch(url, {
+        ...config,
+        signal: controller.signal
+      });
+      
+      clearTimeout(timeoutId);
       console.log(`Response status for ${endpoint}:`, response.status);
       
       // Handle 401 unauthorized - attempt token refresh
@@ -140,6 +151,23 @@ class ApiService {
       
     } catch (error) {
       console.error('API request failed with network error:', error);
+      
+      // Handle specific error types
+      if (error instanceof Error) {
+        if (error.name === 'AbortError') {
+          return { 
+            error: 'Request timed out. Please check your internet connection and try again.', 
+            status: 0 
+          };
+        }
+        if (error.message.includes('Failed to fetch')) {
+          return { 
+            error: 'Network error: Unable to connect to server. Please check your internet connection.', 
+            status: 0 
+          };
+        }
+      }
+      
       return { 
         error: error instanceof Error ? error.message : 'Network error occurred', 
         status: 0 
@@ -150,24 +178,29 @@ class ApiService {
   async login(username: string, password: string): Promise<boolean> {
     console.log('Attempting login for username:', username);
     
-    const response = await this.makeRequest<AuthTokens>('/api/token/', {
-      method: 'POST',
-      body: JSON.stringify({ username, password }),
-    });
+    try {
+      const response = await this.makeRequest<AuthTokens>('/api/token/', {
+        method: 'POST',
+        body: JSON.stringify({ username, password }),
+      });
 
-    if (response.data && response.status === 200) {
-      this.accessToken = response.data.access;
-      this.refreshToken = response.data.refresh;
+      if (response.data && response.status === 200) {
+        this.accessToken = response.data.access;
+        this.refreshToken = response.data.refresh;
+        
+        localStorage.setItem('access_token', this.accessToken);
+        localStorage.setItem('refresh_token', this.refreshToken);
+        
+        console.log('Login successful, tokens saved');
+        return true;
+      }
       
-      localStorage.setItem('access_token', this.accessToken);
-      localStorage.setItem('refresh_token', this.refreshToken);
-      
-      console.log('Login successful, tokens saved');
-      return true;
+      console.log('Login failed:', response.error, response.status);
+      return false;
+    } catch (error) {
+      console.error('Login error:', error);
+      return false;
     }
-    
-    console.log('Login failed:', response.error, response.status);
-    return false;
   }
 
   async refreshAccessToken(): Promise<boolean> {
