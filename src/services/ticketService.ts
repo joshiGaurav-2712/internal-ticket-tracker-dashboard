@@ -14,7 +14,13 @@ export interface ApiTicket {
     id: number;
     name: string;
   };
-  assigned_to: number | null;
+  assigned_to: number | null | {
+    id: number;
+    username: string;
+    email?: string;
+    first_name?: string;
+    last_name?: string;
+  };
   created_at: string;
   updated_at: string;
   worklog_entries?: WorklogEntry[];
@@ -99,7 +105,7 @@ class TicketService {
 
   async updateTicket(id: number, ticketData: UpdateTicketRequest) {
     console.log('TicketService: Updating ticket:', id, ticketData);
-    const response = await apiService.put<ApiTicket>(`/techservices/api/tickets/update/${id}/`, ticketData);
+    const response = await apiService.post<ApiTicket>(`/techservices/api/tickets/update/${id}/`, ticketData);
     console.log('TicketService: Update response:', response);
     
     if (response.error) {
@@ -135,17 +141,30 @@ class TicketService {
     
     return response;
   }
-
   // Enhanced helper function to convert API ticket to frontend ticket format
   convertApiTicketToFrontend(apiTicket: ApiTicket, users: any[] = [], stores: any[] = []): Ticket {
-    const assignedUser = users.find(u => u.id === apiTicket.assigned_to);
+    // Handle assigned_to being either a number, null, or an object
+    let assignedUserId: number | null = null;
+    let assignedUserFromTicket: any = null;
+    
+    if (typeof apiTicket.assigned_to === 'number') {
+      assignedUserId = apiTicket.assigned_to;
+    } else if (apiTicket.assigned_to && typeof apiTicket.assigned_to === 'object') {
+      assignedUserId = apiTicket.assigned_to.id;
+      assignedUserFromTicket = apiTicket.assigned_to;
+    }
+    
+    // First try to find user from the embedded object, then from users array
+    const assignedUser = assignedUserFromTicket || users.find(u => u.id === assignedUserId);
     
     // Handle both store_id and nested store object
     const storeId = apiTicket.store?.id || apiTicket.store_id;
     const store = stores.find(s => s.id === storeId) || apiTicket.store;
-    
-    console.log('TicketService: Converting ticket:', {
+      console.log('TicketService: Converting ticket:', {
       ticketId: apiTicket.id,
+      assigned_to: apiTicket.assigned_to,
+      assignedUserId,
+      assignedUserFromTicket,
       store_id: storeId,
       foundStore: store,
       assignedUser: assignedUser,
@@ -219,9 +238,7 @@ class TicketService {
     // Get user display name
     const assignedTo = assignedUser ? 
       (assignedUser.name || `${assignedUser.first_name || ''} ${assignedUser.last_name || ''}`.trim() || assignedUser.username) : 
-      'Unassigned';
-
-    const result = {
+      'Unassigned';    const result = {
       id: `#${apiTicket.id}`,
       priority: priorityMap[apiTicket.category],
       title: apiTicket.task,
@@ -229,6 +246,7 @@ class TicketService {
       tatStatus,
       timeCreated,
       assignedTo,
+      assignedToId: assignedUserId || undefined,
       brandName: store?.name || `Store ${storeId || 'Unknown'}`,
       timeTaken,
     };

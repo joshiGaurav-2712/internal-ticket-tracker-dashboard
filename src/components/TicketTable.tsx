@@ -30,11 +30,13 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { ViewTicketModal } from "./ViewTicketModal";
+import { UserSearchDropdown } from "./UserSearchDropdown";
 
 interface TicketTableProps {
   tickets: Ticket[];
   onStatusChange: (ticketId: string, newStatus: Ticket['status']) => void;
   onPriorityChange?: (ticketId: string, newPriority: Ticket['priority']) => void;
+  onUserAssignment?: (ticketId: string, userId: number, userDisplayName: string) => void;
   editingTicketId?: string | null;
   onTicketUpdate?: (ticketId: string, updatedTicket: Partial<Ticket>) => void;
   onEditComplete?: () => void;
@@ -104,6 +106,7 @@ export const TicketTable: React.FC<TicketTableProps> = ({
   tickets, 
   onStatusChange,
   onPriorityChange,
+  onUserAssignment,
   editingTicketId,
   onTicketUpdate,
   onEditComplete,
@@ -133,11 +136,20 @@ export const TicketTable: React.FC<TicketTableProps> = ({
       onEditStart(ticket.id);
     }
   };
-
   const handleEditSave = () => {
     if (editingTicketId && onTicketUpdate) {
       onTicketUpdate(editingTicketId, editingValues);
     }
+    
+    // Handle user assignment change separately if it changed
+    if (editingTicketId && editingValues.assignedToId && onUserAssignment) {
+      const currentTicket = tickets.find(t => t.id === editingTicketId);
+      if (currentTicket && currentTicket.assignedToId !== editingValues.assignedToId) {
+        console.log('User assignment changed, calling onUserAssignment');
+        onUserAssignment(editingTicketId, editingValues.assignedToId, editingValues.assignedTo || '');
+      }
+    }
+    
     setEditingValues({});
     if (onEditComplete) {
       onEditComplete();
@@ -182,10 +194,8 @@ export const TicketTable: React.FC<TicketTableProps> = ({
   const handleCloseViewModal = () => {
     setIsViewModalOpen(false);
     setViewingTicket(null);
-  };
-
-  const displayAssignedTo = (assignedTo: string | undefined) => {
-    if (!assignedTo || assignedTo.trim() === '') {
+  };  const displayAssignedTo = (assignedTo: string | undefined) => {
+    if (!assignedTo || assignedTo.trim() === '' || assignedTo === 'Unassigned' || assignedTo.toLowerCase() === 'unassigned') {
       return 'Unassigned';
     }
     return assignedTo;
@@ -224,9 +234,8 @@ export const TicketTable: React.FC<TicketTableProps> = ({
                   </div>
                 </TableHead>
                 <TableHead className="w-[120px] whitespace-nowrap">Priority</TableHead>
-                <TableHead className="min-w-[200px]">Title</TableHead>
-                <TableHead className="w-[130px] whitespace-nowrap">Status</TableHead>
-                <TableHead className="w-[130px] whitespace-nowrap">Assigned To</TableHead>
+                <TableHead className="min-w-[200px]">Title</TableHead>                <TableHead className="w-[130px] whitespace-nowrap">Status</TableHead>
+                <TableHead className="w-[220px] whitespace-nowrap">Assigned To</TableHead>
                 <TableHead className="w-[150px] whitespace-nowrap">TAT Status</TableHead>
                 <TableHead className="w-[120px] whitespace-nowrap">Time Taken</TableHead>
                 <TableHead className="w-[130px] whitespace-nowrap">Time Created</TableHead>
@@ -335,18 +344,41 @@ export const TicketTable: React.FC<TicketTableProps> = ({
                         </SelectContent>
                       </Select>
                     )}
-                  </TableCell>
-                  <TableCell className="whitespace-nowrap">
-                    {isEditing(ticket.id) ? (
-                      <input
-                        type="text"
+                  </TableCell>                    <TableCell className="whitespace-nowrap relative" style={{ minWidth: '220px', width: '220px' }}>
+                    {isEditing(ticket.id) ? (                      <UserSearchDropdown
                         value={editingValues.assignedTo || ticket.assignedTo || ""}
-                        onChange={(e) => setEditingValues(prev => ({ ...prev, assignedTo: e.target.value }))}
-                        className="border rounded px-2 py-1 w-full transition-all duration-200"
-                        placeholder="Unassigned"
+                        userId={editingValues.assignedToId || ticket.assignedToId}
+                        onChange={(userId, userDisplayName) => {
+                          console.log('UserSearchDropdown onChange:', { userId, userDisplayName, ticketId: ticket.id });
+                            // For userId === 0, we want to handle "Unassigned"
+                          if (userId === 0) {
+                            console.log('Clearing user assignment (setting to Unassigned)');
+                            // Allow userId = 0 to indicate unassigned
+                          } else if (!userId) {
+                            console.log('Invalid user ID, ignoring');
+                            return;
+                          }
+                          
+                          // Update editing values
+                          setEditingValues(prev => ({ 
+                            ...prev, 
+                            assignedTo: userDisplayName,
+                            assignedToId: userId
+                          }));
+                          
+                          // Immediate update to provide better feedback
+                          if (onUserAssignment) {
+                            // Immediate save for better UX - makes the change take effect right away
+                            onUserAssignment(ticket.id, userId, userDisplayName);
+                          }
+                        }}
+                        placeholder="Type to search users..."
+                        className="w-full min-w-[200px]"
                       />
                     ) : (
-                      <div className="max-w-[120px] truncate" title={displayAssignedTo(ticket.assignedTo)}>
+                      <div className="w-full truncate cursor-pointer hover:text-blue-500" 
+                           onClick={() => onEditStart && onEditStart(ticket.id)}
+                           title={displayAssignedTo(ticket.assignedTo)}>
                         {displayAssignedTo(ticket.assignedTo)}
                       </div>
                     )}

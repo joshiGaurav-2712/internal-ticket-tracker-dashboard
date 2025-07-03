@@ -12,14 +12,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Ticket } from "@/types";
-import { User } from "@/services/userService";
 import { Store } from "@/services/storeService";
+import { UserSearchSelect } from "./UserSearchSelect";
 
 interface TicketCreationModalProps {
   isOpen: boolean;
   onClose: () => void;
   onCreateTicket: (ticket: Omit<Ticket, 'id'>) => void;
-  users: User[];
   stores: Store[];
 }
 
@@ -27,7 +26,6 @@ export const TicketCreationModal: React.FC<TicketCreationModalProps> = ({
   isOpen,
   onClose,
   onCreateTicket,
-  users,
   stores
 }) => {
   const [formData, setFormData] = useState({
@@ -35,26 +33,35 @@ export const TicketCreationModal: React.FC<TicketCreationModalProps> = ({
     priority: 'Medium' as Ticket['priority'],
     status: 'Open' as Ticket['status'],
     assignedTo: '',
+    assignedToId: null as number | null,
     brandName: '',
     description: ''
   });
 
   console.log('Modal render:', { 
     isOpen, 
-    usersCount: users.length, 
     storesCount: stores.length,
-    users: users.slice(0, 3), // Log first 3 users for debugging
     stores: stores.slice(0, 3) // Log first 3 stores for debugging
   });
-
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!formData.title.trim()) {
+      console.error('Title is required');
+      return;
+    }
+
+    if (!formData.assignedToId) {
+      console.error('Assigned user is required');
+      return;
+    }
     
     const newTicket: Omit<Ticket, 'id'> = {
       title: formData.title || 'New Ticket',
       priority: formData.priority,
       status: formData.status,
       assignedTo: formData.assignedTo || '',
+      assignedToId: formData.assignedToId,
       brandName: formData.brandName || '',
       tatStatus: '2 days left',
       timeCreated: 'Just now',
@@ -68,6 +75,7 @@ export const TicketCreationModal: React.FC<TicketCreationModalProps> = ({
       priority: 'Medium',
       status: 'Open',
       assignedTo: '',
+      assignedToId: null,
       brandName: '',
       description: ''
     });
@@ -79,13 +87,12 @@ export const TicketCreationModal: React.FC<TicketCreationModalProps> = ({
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
-  // Helper function to get user display name
-  const getUserDisplayName = (user: User): string => {
-    if (user.name) return user.name;
-    if (user.first_name || user.last_name) {
-      return `${user.first_name || ''} ${user.last_name || ''}`.trim();
-    }
-    return user.username;
+  const handleUserSelect = (userId: number, userDisplayName: string) => {
+    setFormData(prev => ({
+      ...prev,
+      assignedTo: userDisplayName,
+      assignedToId: userId
+    }));
   };
 
   return (
@@ -126,29 +133,16 @@ export const TicketCreationModal: React.FC<TicketCreationModalProps> = ({
               <div className="flex items-center gap-2">
                 <Label className="text-sm font-bold bg-gradient-to-r from-blue-600 to-blue-800 bg-clip-text text-transparent">TO DO</Label>
               </div>
-              
-              <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2">
                 <Label className="text-sm text-gray-600 font-medium">Assignee</Label>
-                <Select value={formData.assignedTo} onValueChange={(value) => handleInputChange('assignedTo', value)}>
-                  <SelectTrigger className="w-40 h-8 transition-all duration-200 hover-lift component-card bg-white border shadow-sm">
-                    <SelectValue placeholder="Select Assignee" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-white border shadow-lg z-[70] max-h-60 overflow-y-auto">
-                    {users.length === 0 ? (
-                      <SelectItem value="loading" disabled>Loading users...</SelectItem>
-                    ) : (
-                      users.map((user) => {
-                        const displayName = getUserDisplayName(user);
-                        console.log('Rendering user option:', { user, displayName });
-                        return (
-                          <SelectItem key={user.id} value={displayName}>
-                            {displayName}
-                          </SelectItem>
-                        );
-                      })
-                    )}
-                  </SelectContent>
-                </Select>
+                <div className="w-64">
+                  <UserSearchSelect
+                    value={formData.assignedTo}
+                    onChange={handleUserSelect}
+                    placeholder="Search for user..."
+                    className="w-full"
+                  />
+                </div>
               </div>
 
               <div className="flex items-center gap-2">

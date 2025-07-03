@@ -6,6 +6,7 @@ export interface Ticket {
   tatStatus: string;
   timeCreated: string;
   assignedTo?: string;
+  assignedToId?: number;
   brandName?: string;
   timeTaken?: string;
 }

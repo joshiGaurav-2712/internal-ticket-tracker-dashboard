@@ -54,20 +54,9 @@ const Index = () => {
       console.log('Tickets query failed:', error);
       return failureCount < 2;
     },
-    retryDelay: 1000,
-  });
-
-  // Fetch users with better error handling
-  const { data: usersResponse, isLoading: usersLoading, error: usersError } = useQuery({
-    queryKey: ['users'],
-    queryFn: () => userService.getAllUsers(),
-    enabled: isAuthenticated,
-    retry: (failureCount, error) => {
-      console.log('Users query failed:', error);
-      return failureCount < 2;
-    },
-    retryDelay: 1000,
-  });
+    retryDelay: 1000,  });
+  // Remove the getAllUsers query since we'll use search instead
+  // Users will be loaded on-demand through search functionality
 
   // Fetch stores with better error handling
   const { data: storesResponse, isLoading: storesLoading, error: storesError } = useQuery({
@@ -78,21 +67,48 @@ const Index = () => {
       console.log('Stores query failed:', error);
       return failureCount < 2;
     },
+    retryDelay: 1000,  });
+
+  const stores = storesResponse?.data || [];
+  const apiTickets = ticketsResponse?.data || [];
+  // Fetch users based on assigned_to IDs from tickets (only for tickets where assigned_to is just an ID)
+  const assignedUserIds = useMemo(() => {
+    const ids = apiTickets
+      .map(ticket => {
+        // Only collect IDs if assigned_to is a number (not an object with user details)
+        return typeof ticket.assigned_to === 'number' ? ticket.assigned_to : null;
+      })
+      .filter((id): id is number => id !== null && id !== undefined);
+    return [...new Set(ids)]; // Remove duplicates
+  }, [apiTickets]);
+
+  const { data: usersResponse, isLoading: usersLoading } = useQuery({
+    queryKey: ['usersByIds', assignedUserIds],
+    queryFn: () => userService.getUsersByIds(assignedUserIds),
+    enabled: isAuthenticated && assignedUserIds.length > 0,
+    retry: (failureCount, error) => {
+      console.log('Users by IDs query failed:', error);
+      return failureCount < 2;
+    },
     retryDelay: 1000,
   });
 
   const users = usersResponse?.data || [];
-  const stores = storesResponse?.data || [];
-  const apiTickets = ticketsResponse?.data || [];
 
   console.log('Dashboard data:', {
     tickets: apiTickets.length,
-    users: users.length,
     stores: stores.length,
+    users: users.length,
+    assignedUserIds,
+    usersLoading,
     ticketsError: ticketsError?.message,
-    usersError: usersError?.message,
     storesError: storesError?.message,
-    loading: { tickets: ticketsLoading, users: usersLoading, stores: storesLoading }
+    loading: { tickets: ticketsLoading, stores: storesLoading },    sampleTicketAssignments: apiTickets.slice(0, 3).map(t => ({
+      id: t.id,
+      assigned_to: t.assigned_to,
+      assignedUserId: typeof t.assigned_to === 'number' ? t.assigned_to : t.assigned_to?.id,
+      foundUser: users.find(u => u.id === (typeof t.assigned_to === 'number' ? t.assigned_to : t.assigned_to?.id))
+    }))
   });
 
   // Convert API tickets to frontend format
@@ -313,10 +329,7 @@ const Index = () => {
         category: ticketData.priority === 'SOS' ? 'bug' as const :
                   ticketData.priority === 'High' ? 'issue' as const : 'task' as const,
         store_id: stores.find(s => s.name === ticketData.brandName)?.id || stores[0]?.id || 1,
-        assigned_to: users.find(u => {
-          const displayName = u.name || `${u.first_name || ''} ${u.last_name || ''}`.trim() || u.username;
-          return displayName === ticketData.assignedTo;
-        })?.id || users[0]?.id || 1,
+        assigned_to: ticketData.assignedToId || 1,
       };
 
       console.log('Create request payload:', createRequest);
@@ -356,16 +369,14 @@ const Index = () => {
         'Open': 'pending' as const,
         'In Progress': 'in_progress' as const,
         'Completed': 'completed' as const,
-      };
-
-      const updateRequest = {
+      };      const updateRequest = {
         task: apiTicket.task,
         description: apiTicket.description,
         expected_due_date: apiTicket.expected_due_date,
         status: statusMap[newStatus],
         category: apiTicket.category,
-        store: apiTicket.store_id,
-        assigned_to: apiTicket.assigned_to,
+        store: apiTicket.store?.id || apiTicket.store_id,
+        assigned_to: typeof apiTicket.assigned_to === 'number' ? apiTicket.assigned_to : apiTicket.assigned_to?.id,
       };
 
       console.log('Status update request:', updateRequest);
@@ -406,16 +417,14 @@ const Index = () => {
         'High': 'issue' as const,
         'Medium': 'task' as const,
         'Low': 'enhancement' as const,
-      };
-
-      const updateRequest = {
+      };      const updateRequest = {
         task: apiTicket.task,
         description: apiTicket.description,
         expected_due_date: apiTicket.expected_due_date,
         status: apiTicket.status,
         category: priorityMap[newPriority],
-        store: apiTicket.store_id,
-        assigned_to: apiTicket.assigned_to,
+        store: apiTicket.store?.id || apiTicket.store_id,
+        assigned_to: typeof apiTicket.assigned_to === 'number' ? apiTicket.assigned_to : apiTicket.assigned_to?.id,
       };
 
       console.log('Priority update request:', updateRequest);
@@ -449,16 +458,13 @@ const Index = () => {
       if (!apiTicket) {
         console.error('Ticket not found:', ticketNumber);
         return;
-      }
-
-      const updateRequest = {
+      }      const updateRequest = {
         task: updatedTicket.title || apiTicket.task,
         description: updatedTicket.title || apiTicket.description,
         expected_due_date: apiTicket.expected_due_date,
         status: apiTicket.status,
-        category: apiTicket.category,
-        store: stores.find(s => s.name === updatedTicket.brandName)?.id || apiTicket.store_id,
-        assigned_to: users.find(u => u.name === updatedTicket.assignedTo || u.username === updatedTicket.assignedTo)?.id || apiTicket.assigned_to,
+        category: apiTicket.category,        store: stores.find(s => s.name === updatedTicket.brandName)?.id || apiTicket.store?.id || apiTicket.store_id,
+        assigned_to: typeof apiTicket.assigned_to === 'number' ? apiTicket.assigned_to : apiTicket.assigned_to?.id, // Keep existing assignee for general updates
       };
 
       console.log('General update request:', updateRequest);
@@ -528,17 +534,100 @@ const Index = () => {
     } else {
       setSortField(field);
       setSortDirection('asc');
+    }  };  const handleUserAssignment = async (ticketId: string, userId: number, userDisplayName: string) => {
+    try {
+      console.log('Updating ticket user assignment:', ticketId, userId, userDisplayName);
+      
+      // Validate inputs
+      if (!ticketId) {
+        console.error('Invalid ticket ID:', { ticketId });
+        return;
+      }
+      
+      // Special case for userId = 0, which means "Unassigned"
+      const isUnassigning = userId === 0;
+      
+      const ticketNumber = parseInt(ticketId.replace('#', ''));
+      const apiTicket = apiTickets.find(t => t.id === ticketNumber);
+      
+      if (!apiTicket) {
+        console.error('Ticket not found:', ticketNumber);
+        return;
+      }
+      
+      // Optimistically update the local UI to show the change immediately
+      // This helps the user see the change without waiting for the API
+        // First, update any tickets displayed in the UI
+      const updatedTickets = tickets.map(ticket => {
+        if (ticket.id === ticketId) {
+          return {
+            ...ticket,
+            assignedTo: isUnassigning ? '' : userDisplayName,
+            assignedToId: isUnassigning ? 0 : userId
+          };
+        }
+        return ticket;
+      });
+      
+      // Next, make sure the user is in our cache for immediate display
+      if (userId && userDisplayName && !users.some(u => u.id === userId)) {
+        console.log('Adding user to local cache for immediate display:', { userId, userDisplayName });
+        // Add user to cache for immediate display
+        queryClient.setQueryData(['user', userId], {
+          data: { id: userId, username: userDisplayName, name: userDisplayName }
+        });
+      }      const updateRequest = {
+        task: apiTicket.task,
+        description: apiTicket.description,
+        expected_due_date: apiTicket.expected_due_date,
+        status: apiTicket.status,
+        category: apiTicket.category,
+        store: apiTicket.store?.id || apiTicket.store_id,
+        assigned_to: isUnassigning ? null : userId, // Send null to unassign
+      };
+
+      console.log('User assignment update request:', updateRequest);
+      const response = await ticketService.updateTicket(ticketNumber, updateRequest);
+      
+      if (response.status === 200) {        // Force-refresh tickets data to get the updated assignments
+        await queryClient.invalidateQueries({ queryKey: ['tickets'] });
+        
+        // If we updated the userId and it's not unassigning, we might need to fetch that user's details
+        if (!isUnassigning && !users.some(u => u.id === userId)) {
+          console.log('Adding new user to fetch list:', userId);
+          await queryClient.invalidateQueries({ queryKey: ['usersByIds'] });
+          await queryClient.invalidateQueries({ queryKey: ['user', userId] });
+        }
+        
+        // Set editingTicketId to null to exit editing mode
+        setEditingTicketId(null);
+        
+        toast({
+          title: "Success",
+          description: `Ticket assigned to ${userDisplayName} successfully!`,
+        });
+      } else {
+        throw new Error(`Update failed: ${response.status}`);
+      }
+    } catch (error) {
+      console.error('Error updating ticket assignment:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update ticket assignment.",
+        variant: "destructive",
+      });
     }
   };
-
   useEffect(() => {
     if (stores.length > 0 && apiTickets.length > 0) {
       console.log('Store mapping debug:', {
         stores: stores.map(s => ({ id: s.id, name: s.name })),
         apiTickets: apiTickets.slice(0, 3).map(t => ({ 
           id: t.id, 
-          store_id: t.store_id, 
-          matchedStore: stores.find(s => s.id === t.store_id)?.name 
+          store_id: t.store_id,
+          store_object: t.store,
+          effectiveStoreId: t.store?.id || t.store_id,
+          matchedStore: stores.find(s => s.id === (t.store?.id || t.store_id))?.name 
         }))
       });
     }
@@ -555,9 +644,8 @@ const Index = () => {
   if (!isAuthenticated) {
     return <LoginForm />;
   }
-
   // Show loading state while initial data loads
-  if (ticketsLoading && usersLoading && storesLoading) {
+  if (ticketsLoading && storesLoading) {
     return (
       <div className="min-h-screen">
         <Navigation onCreateTicket={handleCreateTicket} />
@@ -571,10 +659,9 @@ const Index = () => {
   }
 
   // Show error state only if all critical data fails to load
-  const hasCriticalError = ticketsError && usersError && storesError;
-
+  const hasCriticalError = ticketsError && storesError;
   if (hasCriticalError) {
-    console.error('Critical error detected:', { ticketsError, usersError, storesError });
+    console.error('Critical error detected:', { ticketsError, storesError });
     return (
       <div className="min-h-screen">
         <Navigation onCreateTicket={handleCreateTicket} />
@@ -588,7 +675,6 @@ const Index = () => {
               <button 
                 onClick={() => {
                   queryClient.invalidateQueries({ queryKey: ['tickets'] });
-                  queryClient.invalidateQueries({ queryKey: ['users'] });
                   queryClient.invalidateQueries({ queryKey: ['stores'] });
                 }}
                 className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
@@ -658,6 +744,7 @@ const Index = () => {
                   onSort={handleSort}
                   sortField={sortField}
                   sortDirection={sortDirection}
+                  onUserAssignment={handleUserAssignment}
                 />
               )}
             </div>
@@ -667,13 +754,10 @@ const Index = () => {
         <div className="mb-8 animate-fade-in-up animate-stagger-5" style={{ animationFillMode: 'both' }}>
           <CommunicationCenter />
         </div>
-      </div>
-
-      <TicketCreationModal
+      </div>      <TicketCreationModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onCreateTicket={handleCreateTicketFromModal}
-        users={users}
         stores={stores}
       />
     </div>
