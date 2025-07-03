@@ -335,7 +335,7 @@ const Index = () => {
       console.log('Create request payload:', createRequest);
       const response = await ticketService.createTicket(createRequest);
       
-      if (response.data && response.status === 201) {
+      if (response.data && response.status === 200) {
         await queryClient.invalidateQueries({ queryKey: ['tickets'] });
         toast({
           title: "Success",
