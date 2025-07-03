@@ -43,6 +43,7 @@ export const TicketCreationModal: React.FC<TicketCreationModalProps> = ({
     storesCount: stores.length,
     stores: stores.slice(0, 3) // Log first 3 stores for debugging
   });
+  
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -58,6 +59,7 @@ export const TicketCreationModal: React.FC<TicketCreationModalProps> = ({
     
     const newTicket: Omit<Ticket, 'id'> = {
       title: formData.title || 'New Ticket',
+      description: formData.description || '', // Include description
       priority: formData.priority,
       status: formData.status,
       assignedTo: formData.assignedTo || '',
