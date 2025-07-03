@@ -63,7 +63,7 @@ export const ViewTicketModal: React.FC<ViewTicketModalProps> = ({
             <div className="animate-fade-in-up animate-stagger-1" style={{ animationFillMode: 'both' }}>
               <label className="text-sm font-medium text-gray-600">Description</label>
               <p className="text-sm text-gray-900 mt-1 p-3 bg-gray-50 rounded-md border">
-                {ticket.title || 'No description provided'}
+                {ticket.description || 'No description provided'}
               </p>
             </div>
 

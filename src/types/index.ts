@@ -1,7 +1,9 @@
+
 export interface Ticket {
   id: string;
   priority: 'SOS' | 'High' | 'Medium' | 'Low';
   title: string;
+  description?: string;
   status: 'Open' | 'In Progress' | 'Completed';
   tatStatus: string;
   timeCreated: string;
