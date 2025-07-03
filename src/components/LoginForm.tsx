@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import { AlertCircle, Loader2 } from 'lucide-react';
@@ -11,6 +12,7 @@ import { AlertCircle, Loader2 } from 'lucide-react';
 export const LoginForm = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { login } = useAuth();
@@ -94,13 +96,23 @@ export const LoginForm = () => {
               <Label htmlFor="password">Password</Label>
               <Input
                 id="password"
-                type="password"
+                type={showPassword ? "text" : "password"}
                 placeholder="Enter your password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 disabled={isLoading}
                 required
               />
+              <div className="flex items-center space-x-2 mt-2">
+                <Checkbox 
+                  id="showPassword" 
+                  checked={showPassword}
+                  onCheckedChange={(checked) => setShowPassword(checked as boolean)}
+                />
+                <Label htmlFor="showPassword" className="text-sm text-gray-600 cursor-pointer">
+                  Show Password
+                </Label>
+              </div>
             </div>
             <Button 
               type="submit" 

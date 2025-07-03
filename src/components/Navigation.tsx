@@ -35,7 +35,9 @@ export const Navigation: React.FC<NavigationProps> = ({ onCreateTicket }) => {
   const { logout } = useAuth();
 
   const handleLogout = (): void => {
+    console.log('Logout button clicked');
     logout();
+    window.location.href = '/'; // Redirect to sign-in page
   };
 
   const handleCreateTicketClick = () => {
@@ -66,18 +68,21 @@ export const Navigation: React.FC<NavigationProps> = ({ onCreateTicket }) => {
           <Plus className="w-4 h-4 mr-2" />
           Create New Ticket
         </Button>
+        
+        {/* User Menu with Logout */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button 
-              variant="ghost" 
-              size="icon" 
-              className="rounded-full hover-lift transition-all duration-300"
+              variant="outline" 
+              size="sm"
+              className="flex items-center gap-2 hover-lift transition-all duration-300"
             >
-              <User className="w-5 h-5" />
+              <User className="w-4 h-4" />
+              Account
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-48">
-            <DropdownMenuItem onClick={handleLogout} className="text-red-600">
+            <DropdownMenuItem onClick={handleLogout} className="text-red-600 focus:text-red-700">
               <LogOut className="w-4 h-4 mr-2" />
               Logout
             </DropdownMenuItem>
