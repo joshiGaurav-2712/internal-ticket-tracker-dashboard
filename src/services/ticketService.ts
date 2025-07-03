@@ -1,4 +1,3 @@
-
 import { apiService } from './api';
 import { Ticket } from '@/types';
 
@@ -141,6 +140,7 @@ class TicketService {
     
     return response;
   }
+
   // Enhanced helper function to convert API ticket to frontend ticket format
   convertApiTicketToFrontend(apiTicket: ApiTicket, users: any[] = [], stores: any[] = []): Ticket {
     // Handle assigned_to being either a number, null, or an object
@@ -242,6 +242,7 @@ class TicketService {
       id: `#${apiTicket.id}`,
       priority: priorityMap[apiTicket.category],
       title: apiTicket.task,
+      description: apiTicket.description,
       status: statusMap[apiTicket.status],
       tatStatus,
       timeCreated,
