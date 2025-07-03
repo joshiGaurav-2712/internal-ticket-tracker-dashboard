@@ -59,18 +59,26 @@ export const ViewTicketModal: React.FC<ViewTicketModalProps> = ({
               </h3>
             </div>
 
+            {/* Description Section */}
+            <div className="animate-fade-in-up animate-stagger-1" style={{ animationFillMode: 'both' }}>
+              <label className="text-sm font-medium text-gray-600">Description</label>
+              <p className="text-sm text-gray-900 mt-1 p-3 bg-gray-50 rounded-md border">
+                {ticket.title || 'No description provided'}
+              </p>
+            </div>
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="animate-fade-in-left animate-stagger-1" style={{ animationFillMode: 'both' }}>
+              <div className="animate-fade-in-left animate-stagger-2" style={{ animationFillMode: 'both' }}>
                 <label className="text-sm font-medium text-gray-600">Ticket ID</label>
                 <p className="text-sm text-gray-900 mt-1">{ticket.id}</p>
               </div>
 
-              <div className="animate-fade-in-right animate-stagger-1" style={{ animationFillMode: 'both' }}>
+              <div className="animate-fade-in-right animate-stagger-2" style={{ animationFillMode: 'both' }}>
                 <label className="text-sm font-medium text-gray-600">Brand Name</label>
                 <p className="text-sm text-gray-900 mt-1">{ticket.brandName || 'Default Brand'}</p>
               </div>
 
-              <div className="animate-fade-in-left animate-stagger-2" style={{ animationFillMode: 'both' }}>
+              <div className="animate-fade-in-left animate-stagger-3" style={{ animationFillMode: 'both' }}>
                 <label className="text-sm font-medium text-gray-600">Priority</label>
                 <div className="mt-1">
                   <Badge className={getPriorityClass(ticket.priority)}>
@@ -79,7 +87,7 @@ export const ViewTicketModal: React.FC<ViewTicketModalProps> = ({
                 </div>
               </div>
 
-              <div className="animate-fade-in-right animate-stagger-2" style={{ animationFillMode: 'both' }}>
+              <div className="animate-fade-in-right animate-stagger-3" style={{ animationFillMode: 'both' }}>
                 <label className="text-sm font-medium text-gray-600">Status</label>
                 <div className="mt-1">
                   <Badge className={getStatusClass(ticket.status)}>
@@ -88,22 +96,22 @@ export const ViewTicketModal: React.FC<ViewTicketModalProps> = ({
                 </div>
               </div>
 
-              <div className="animate-fade-in-left animate-stagger-3" style={{ animationFillMode: 'both' }}>
+              <div className="animate-fade-in-left animate-stagger-4" style={{ animationFillMode: 'both' }}>
                 <label className="text-sm font-medium text-gray-600">Assigned To</label>
                 <p className="text-sm text-gray-900 mt-1">{ticket.assignedTo || 'Unassigned'}</p>
               </div>
 
-              <div className="animate-fade-in-right animate-stagger-3" style={{ animationFillMode: 'both' }}>
+              <div className="animate-fade-in-right animate-stagger-4" style={{ animationFillMode: 'both' }}>
                 <label className="text-sm font-medium text-gray-600">TAT Status</label>
                 <p className="text-sm text-gray-900 mt-1">{ticket.tatStatus}</p>
               </div>
 
-              <div className="animate-fade-in-left animate-stagger-4" style={{ animationFillMode: 'both' }}>
+              <div className="animate-fade-in-left animate-stagger-5" style={{ animationFillMode: 'both' }}>
                 <label className="text-sm font-medium text-gray-600">Time Taken</label>
                 <p className="text-sm text-gray-900 mt-1">{ticket.timeTaken || '0h'}</p>
               </div>
 
-              <div className="animate-fade-in-right animate-stagger-4" style={{ animationFillMode: 'both' }}>
+              <div className="animate-fade-in-right animate-stagger-5" style={{ animationFillMode: 'both' }}>
                 <label className="text-sm font-medium text-gray-600">Time Created</label>
                 <p className="text-sm text-gray-900 mt-1">{ticket.timeCreated}</p>
               </div>
