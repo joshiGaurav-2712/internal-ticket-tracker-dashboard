@@ -219,7 +219,7 @@ export const TicketTable: React.FC<TicketTableProps> = ({
   return (
     <>
       <div className="bg-white rounded-lg shadow-sm overflow-hidden animate-scale-in hover-lift">
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto max-h-[800px] overflow-y-auto">
           <Table>
             <TableHeader>
               <TableRow className="bg-gray-50">
