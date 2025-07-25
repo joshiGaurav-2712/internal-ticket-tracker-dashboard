@@ -11,6 +11,7 @@ export interface Ticket {
   assignedToId?: number;
   brandName?: string;
   timeTaken?: string;
+  dueDate?: string;
 }
 
 export interface Update {

@@ -11,6 +11,11 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { CalendarIcon } from "lucide-react";
+import { format } from "date-fns";
+import { cn } from "@/lib/utils";
 import { Ticket } from "@/types";
 import { Store } from "@/services/storeService";
 import { UserSearchSelect } from "./UserSearchSelect";
@@ -35,7 +40,8 @@ export const TicketCreationModal: React.FC<TicketCreationModalProps> = ({
     assignedTo: '',
     assignedToId: null as number | null,
     brandName: '',
-    description: ''
+    description: '',
+    dueDate: null as Date | null
   });
 
   console.log('Modal render:', { 
@@ -67,7 +73,8 @@ export const TicketCreationModal: React.FC<TicketCreationModalProps> = ({
       brandName: formData.brandName || '',
       tatStatus: '2 days left',
       timeCreated: 'Just now',
-      timeTaken: '0h'
+      timeTaken: '0h',
+      dueDate: formData.dueDate ? format(formData.dueDate, 'yyyy-MM-dd') : undefined
     };
 
     console.log('Creating ticket with data:', newTicket);
@@ -79,7 +86,8 @@ export const TicketCreationModal: React.FC<TicketCreationModalProps> = ({
       assignedTo: '',
       assignedToId: null,
       brandName: '',
-      description: ''
+      description: '',
+      dueDate: null
     });
     onClose();
   };
@@ -197,6 +205,33 @@ export const TicketCreationModal: React.FC<TicketCreationModalProps> = ({
                     )}
                   </SelectContent>
                 </Select>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <Label className="text-sm text-gray-600 font-medium">Due Date</Label>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className={cn(
+                        "w-40 h-8 justify-start text-left font-normal transition-all duration-200 hover-lift component-card bg-white border shadow-sm",
+                        !formData.dueDate && "text-muted-foreground"
+                      )}
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {formData.dueDate ? format(formData.dueDate, "MMM dd, yyyy") : "Select date"}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0 z-[70]" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={formData.dueDate || undefined}
+                      onSelect={(date) => setFormData(prev => ({ ...prev, dueDate: date || null }))}
+                      initialFocus
+                      className={cn("p-3 pointer-events-auto")}
+                    />
+                  </PopoverContent>
+                </Popover>
               </div>
             </div>
           </div>

@@ -237,6 +237,7 @@ export const TicketTable: React.FC<TicketTableProps> = ({
                 <TableHead className="min-w-[200px]">Title</TableHead>                <TableHead className="w-[130px] whitespace-nowrap">Status</TableHead>
                 <TableHead className="w-[220px] whitespace-nowrap">Assigned To</TableHead>
                 <TableHead className="w-[150px] whitespace-nowrap">TAT Status</TableHead>
+                <TableHead className="w-[120px] whitespace-nowrap">Due Date</TableHead>
                 <TableHead className="w-[120px] whitespace-nowrap">Time Taken</TableHead>
                 <TableHead className="w-[130px] whitespace-nowrap">Time Created</TableHead>
                 <TableHead className="text-right w-[180px] whitespace-nowrap">Action</TableHead>
@@ -388,6 +389,18 @@ export const TicketTable: React.FC<TicketTableProps> = ({
                       {getTatStatusIndicator(ticket.tatStatus)}
                       <span className="text-sm">{ticket.tatStatus}</span>
                     </div>
+                  </TableCell>
+                  <TableCell className="whitespace-nowrap">
+                    {isEditing(ticket.id) ? (
+                      <input
+                        type="date"
+                        value={editingValues.dueDate || ticket.dueDate || ""}
+                        onChange={(e) => setEditingValues(prev => ({ ...prev, dueDate: e.target.value }))}
+                        className="border rounded px-2 py-1 w-full text-sm transition-all duration-200"
+                      />
+                    ) : (
+                      ticket.dueDate ? new Date(ticket.dueDate).toLocaleDateString() : "No due date"
+                    )}
                   </TableCell>
                   <TableCell className="whitespace-nowrap">
                     {isEditing(ticket.id) ? (
