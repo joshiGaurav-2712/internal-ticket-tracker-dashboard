@@ -460,8 +460,8 @@ const Index = () => {
         return;
       }      const updateRequest = {
         task: updatedTicket.title || apiTicket.task,
-        description: updatedTicket.title || apiTicket.description,
-        expected_due_date: apiTicket.expected_due_date,
+        description: updatedTicket.description || apiTicket.description,
+        expected_due_date: updatedTicket.dueDate || apiTicket.expected_due_date,
         status: apiTicket.status,
         category: apiTicket.category,        store: stores.find(s => s.name === updatedTicket.brandName)?.id || apiTicket.store?.id || apiTicket.store_id,
         assigned_to: typeof apiTicket.assigned_to === 'number' ? apiTicket.assigned_to : apiTicket.assigned_to?.id, // Keep existing assignee for general updates

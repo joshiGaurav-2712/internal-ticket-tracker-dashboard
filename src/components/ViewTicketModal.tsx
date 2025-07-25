@@ -115,6 +115,13 @@ export const ViewTicketModal: React.FC<ViewTicketModalProps> = ({
                 <label className="text-sm font-medium text-gray-600">Time Created</label>
                 <p className="text-sm text-gray-900 mt-1">{ticket.timeCreated}</p>
               </div>
+
+              <div className="animate-fade-in-left animate-stagger-6" style={{ animationFillMode: 'both' }}>
+                <label className="text-sm font-medium text-gray-600">Expected Due Date</label>
+                <p className="text-sm text-gray-900 mt-1">
+                  {ticket.dueDate ? new Date(ticket.dueDate).toLocaleDateString() : 'No due date set'}
+                </p>
+              </div>
             </div>
           </div>
 
