@@ -238,7 +238,9 @@ class TicketService {
     // Get user display name
     const assignedTo = assignedUser ? 
       (assignedUser.name || `${assignedUser.first_name || ''} ${assignedUser.last_name || ''}`.trim() || assignedUser.username) : 
-      'Unassigned';    const result = {
+      'Unassigned';
+      
+    const result = {
       id: `#${apiTicket.id}`,
       priority: priorityMap[apiTicket.category],
       title: apiTicket.task,
@@ -250,6 +252,7 @@ class TicketService {
       assignedToId: assignedUserId || undefined,
       brandName: store?.name || `Store ${storeId || 'Unknown'}`,
       timeTaken,
+      dueDate: apiTicket.expected_due_date || undefined,
     };
 
     console.log('TicketService: Converted ticket result:', result);

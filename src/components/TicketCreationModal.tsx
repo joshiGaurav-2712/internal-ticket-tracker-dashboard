@@ -208,7 +208,7 @@ export const TicketCreationModal: React.FC<TicketCreationModalProps> = ({
               </div>
 
               <div className="flex items-center gap-2">
-                <Label className="text-sm text-gray-600 font-medium">Due Date</Label>
+                <Label className="text-sm text-gray-600 font-medium">Expected Due Date</Label>
                 <Popover>
                   <PopoverTrigger asChild>
                     <Button

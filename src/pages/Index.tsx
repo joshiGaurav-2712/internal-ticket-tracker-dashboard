@@ -322,8 +322,8 @@ const Index = () => {
       // Convert frontend ticket format to API format
       const createRequest = {
         task: ticketData.title,
-        description: ticketData.description, // Using title as description for now
-        expected_due_date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // Default 7 days from now
+        description: ticketData.description,
+        expected_due_date: ticketData.dueDate || new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // Use form date or default 7 days from now
         status: ticketData.status === 'Open' ? 'pending' as const : 
                 ticketData.status === 'In Progress' ? 'in_progress' as const : 'completed' as const,
         category: ticketData.priority === 'SOS' ? 'bug' as const :
