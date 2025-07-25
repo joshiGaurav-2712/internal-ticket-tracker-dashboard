@@ -107,11 +107,11 @@ export const TicketCreationModal: React.FC<TicketCreationModalProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto animate-scale-in component-card gradient-shadow z-[60]">
-        <DialogHeader className="border-b pb-4">
+      <DialogContent className="w-[95vw] max-w-2xl max-h-[85vh] md:max-h-[80vh] overflow-y-auto animate-scale-in component-card gradient-shadow z-[60] mx-2 md:mx-4">
+        <DialogHeader className="border-b pb-3 md:pb-4">
           <div className="flex items-center justify-between">
             <div className="flex gap-4">
-              <button className="text-blue-600 border-b-2 border-blue-600 pb-2 px-1 font-bold transition-colors duration-200">
+              <button className="text-blue-600 border-b-2 border-blue-600 pb-2 px-1 font-bold transition-colors duration-200 text-sm md:text-base">
                 Task
               </button>
             </div>
@@ -119,7 +119,7 @@ export const TicketCreationModal: React.FC<TicketCreationModalProps> = ({
           </div>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-6 p-1 animate-fade-in-up">
+        <form onSubmit={handleSubmit} className="space-y-4 md:space-y-6 p-1 animate-fade-in-up">
           <div className="space-y-4">
             <div className="animate-slide-in-down">
               <Input
@@ -135,17 +135,17 @@ export const TicketCreationModal: React.FC<TicketCreationModalProps> = ({
                 placeholder="Add description"
                 value={formData.description}
                 onChange={(e) => handleInputChange('description', e.target.value)}
-                className="min-h-[100px] border-none shadow-none resize-none focus-visible:ring-0 transition-all duration-200 bg-gradient-to-br from-gray-50 to-white rounded-lg p-4"
+                className="min-h-[80px] md:min-h-[100px] border-none shadow-none resize-none focus-visible:ring-0 transition-all duration-200 bg-gradient-to-br from-gray-50 to-white rounded-lg p-3 md:p-4 text-sm md:text-base"
               />
             </div>
 
-            <div className="flex flex-wrap gap-4 py-4 animate-fade-in-up animate-stagger-2" style={{ animationFillMode: 'both' }}>
-              <div className="flex items-center gap-2">
-                <Label className="text-sm font-bold bg-gradient-to-r from-blue-600 to-blue-800 bg-clip-text text-transparent">TO DO</Label>
+            <div className="flex flex-col sm:flex-row sm:flex-wrap gap-3 md:gap-4 py-3 md:py-4 animate-fade-in-up animate-stagger-2" style={{ animationFillMode: 'both' }}>
+              <div className="flex items-center gap-2 sm:col-span-2">
+                <Label className="text-xs md:text-sm font-bold bg-gradient-to-r from-blue-600 to-blue-800 bg-clip-text text-transparent">TO DO</Label>
               </div>
-                <div className="flex items-center gap-2">
-                <Label className="text-sm text-gray-600 font-medium">Assignee</Label>
-                <div className="w-64">
+                <div className="flex flex-col sm:flex-row sm:items-center gap-2 w-full">
+                <Label className="text-xs md:text-sm text-gray-600 font-medium">Assignee</Label>
+                <div className="w-full sm:w-64">
                   <UserSearchSelect
                     value={formData.assignedTo}
                     onChange={handleUserSelect}
@@ -155,10 +155,10 @@ export const TicketCreationModal: React.FC<TicketCreationModalProps> = ({
                 </div>
               </div>
 
-              <div className="flex items-center gap-2">
-                <Label className="text-sm text-gray-600 font-medium">Priority</Label>
+              <div className="flex flex-col sm:flex-row sm:items-center gap-2 w-full sm:w-auto">
+                <Label className="text-xs md:text-sm text-gray-600 font-medium">Priority</Label>
                 <Select value={formData.priority} onValueChange={(value) => handleInputChange('priority', value)}>
-                  <SelectTrigger className="w-32 h-8 transition-all duration-200 hover-lift component-card bg-white border shadow-sm">
+                  <SelectTrigger className="w-full sm:w-32 h-8 transition-all duration-200 hover-lift component-card bg-white border shadow-sm">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent className="bg-white border shadow-lg z-[70]">
@@ -170,10 +170,10 @@ export const TicketCreationModal: React.FC<TicketCreationModalProps> = ({
                 </Select>
               </div>
 
-              <div className="flex items-center gap-2">
-                <Label className="text-sm text-gray-600 font-medium">Status</Label>
+              <div className="flex flex-col sm:flex-row sm:items-center gap-2 w-full sm:w-auto">
+                <Label className="text-xs md:text-sm text-gray-600 font-medium">Status</Label>
                 <Select value={formData.status} onValueChange={(value) => handleInputChange('status', value)}>
-                  <SelectTrigger className="w-32 h-8 transition-all duration-200 hover-lift component-card bg-white border shadow-sm">
+                  <SelectTrigger className="w-full sm:w-32 h-8 transition-all duration-200 hover-lift component-card bg-white border shadow-sm">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent className="bg-white border shadow-lg z-[70]">
@@ -184,10 +184,10 @@ export const TicketCreationModal: React.FC<TicketCreationModalProps> = ({
                 </Select>
               </div>
 
-              <div className="flex items-center gap-2">
-                <Label className="text-sm text-gray-600 font-medium">Brand</Label>
+              <div className="flex flex-col sm:flex-row sm:items-center gap-2 w-full sm:w-auto">
+                <Label className="text-xs md:text-sm text-gray-600 font-medium">Brand</Label>
                 <Select value={formData.brandName} onValueChange={(value) => handleInputChange('brandName', value)}>
-                  <SelectTrigger className="w-40 h-8 transition-all duration-200 hover-lift component-card bg-white border shadow-sm">
+                  <SelectTrigger className="w-full sm:w-40 h-8 transition-all duration-200 hover-lift component-card bg-white border shadow-sm">
                     <SelectValue placeholder="Select Brand" />
                   </SelectTrigger>
                   <SelectContent className="bg-white border shadow-lg z-[70] max-h-60 overflow-y-auto">
@@ -207,14 +207,14 @@ export const TicketCreationModal: React.FC<TicketCreationModalProps> = ({
                 </Select>
               </div>
 
-              <div className="flex items-center gap-2">
-                <Label className="text-sm text-gray-600 font-medium">Expected Due Date</Label>
+              <div className="flex flex-col sm:flex-row sm:items-center gap-2 w-full sm:w-auto">
+                <Label className="text-xs md:text-sm text-gray-600 font-medium">Expected Due Date</Label>
                 <Popover>
                   <PopoverTrigger asChild>
                     <Button
                       variant="outline"
                       className={cn(
-                        "w-40 h-8 justify-start text-left font-normal transition-all duration-200 hover-lift component-card bg-white border shadow-sm",
+                        "w-full sm:w-40 h-8 justify-start text-left font-normal transition-all duration-200 hover-lift component-card bg-white border shadow-sm",
                         !formData.dueDate && "text-muted-foreground"
                       )}
                     >
@@ -236,8 +236,8 @@ export const TicketCreationModal: React.FC<TicketCreationModalProps> = ({
             </div>
           </div>
 
-          <div className="flex justify-end items-center pt-4 border-t animate-fade-in-up animate-stagger-3" style={{ animationFillMode: 'both' }}>
-            <Button type="submit" className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 transition-all duration-300 hover-lift shadow-lg">
+          <div className="flex justify-end items-center pt-3 md:pt-4 border-t animate-fade-in-up animate-stagger-3" style={{ animationFillMode: 'both' }}>
+            <Button type="submit" className="w-full sm:w-auto bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 transition-all duration-300 hover-lift shadow-lg text-sm md:text-base">
               Create Task
             </Button>
           </div>

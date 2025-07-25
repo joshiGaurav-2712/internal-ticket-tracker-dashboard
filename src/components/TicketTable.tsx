@@ -219,8 +219,9 @@ export const TicketTable: React.FC<TicketTableProps> = ({
   return (
     <>
       <div className="bg-white rounded-lg shadow-sm overflow-hidden animate-scale-in hover-lift">
-        <div className="overflow-x-auto max-h-[500px] md:max-h-[800px] overflow-y-auto">
-          <Table>
+        <div className="overflow-x-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+          <div className="min-w-[800px]">
+            <Table>
             <TableHeader>
               <TableRow className="bg-gray-50">
                 <TableHead className="w-[80px] md:w-[100px] whitespace-nowrap text-xs md:text-sm">ID</TableHead>
@@ -491,7 +492,8 @@ export const TicketTable: React.FC<TicketTableProps> = ({
                 </TableRow>
               ))}
             </TableBody>
-          </Table>
+            </Table>
+          </div>
         </div>
       </div>
 
