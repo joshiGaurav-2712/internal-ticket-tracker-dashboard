@@ -219,28 +219,30 @@ export const TicketTable: React.FC<TicketTableProps> = ({
   return (
     <>
       <div className="bg-white rounded-lg shadow-sm overflow-hidden animate-scale-in hover-lift">
-        <div className="overflow-x-auto max-h-[800px] overflow-y-auto">
+        <div className="overflow-x-auto max-h-[500px] md:max-h-[800px] overflow-y-auto">
           <Table>
             <TableHeader>
               <TableRow className="bg-gray-50">
-                <TableHead className="w-[100px] whitespace-nowrap">Ticket ID</TableHead>
+                <TableHead className="w-[80px] md:w-[100px] whitespace-nowrap text-xs md:text-sm">ID</TableHead>
                 <TableHead 
-                  className="w-[120px] cursor-pointer hover:bg-gray-100 transition-colors duration-200 whitespace-nowrap"
+                  className="w-[100px] md:w-[120px] cursor-pointer hover:bg-gray-100 transition-colors duration-200 whitespace-nowrap text-xs md:text-sm"
                   onClick={() => handleSort('brandName')}
                 >
                   <div className="flex items-center gap-1">
-                    Brand Name
+                    <span className="hidden md:inline">Brand Name</span>
+                    <span className="md:hidden">Brand</span>
                     <SortIcon field="brandName" />
                   </div>
                 </TableHead>
-                <TableHead className="w-[120px] whitespace-nowrap">Priority</TableHead>
-                <TableHead className="min-w-[200px]">Title</TableHead>                <TableHead className="w-[130px] whitespace-nowrap">Status</TableHead>
-                <TableHead className="w-[220px] whitespace-nowrap">Assigned To</TableHead>
-                <TableHead className="w-[150px] whitespace-nowrap">TAT Status</TableHead>
-                <TableHead className="w-[120px] whitespace-nowrap">Due Date</TableHead>
-                <TableHead className="w-[120px] whitespace-nowrap">Time Taken</TableHead>
-                <TableHead className="w-[130px] whitespace-nowrap">Time Created</TableHead>
-                <TableHead className="text-right w-[180px] whitespace-nowrap">Action</TableHead>
+                <TableHead className="w-[80px] md:w-[120px] whitespace-nowrap text-xs md:text-sm">Priority</TableHead>
+                <TableHead className="min-w-[150px] md:min-w-[200px] text-xs md:text-sm">Title</TableHead>
+                <TableHead className="w-[100px] md:w-[130px] whitespace-nowrap text-xs md:text-sm">Status</TableHead>
+                <TableHead className="w-[120px] md:w-[220px] whitespace-nowrap text-xs md:text-sm hidden sm:table-cell">Assigned To</TableHead>
+                <TableHead className="w-[100px] md:w-[150px] whitespace-nowrap text-xs md:text-sm hidden lg:table-cell">TAT Status</TableHead>
+                <TableHead className="w-[100px] md:w-[120px] whitespace-nowrap text-xs md:text-sm hidden xl:table-cell">Due Date</TableHead>
+                <TableHead className="w-[80px] md:w-[120px] whitespace-nowrap text-xs md:text-sm hidden xl:table-cell">Time</TableHead>
+                <TableHead className="w-[100px] md:w-[130px] whitespace-nowrap text-xs md:text-sm hidden 2xl:table-cell">Created</TableHead>
+                <TableHead className="text-right w-[120px] md:w-[180px] whitespace-nowrap text-xs md:text-sm">Action</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -437,22 +439,23 @@ export const TicketTable: React.FC<TicketTableProps> = ({
                         </Button>
                       </div>
                     ) : (
-                      <div className="flex gap-1 justify-end flex-wrap">
+                      <div className="flex gap-0.5 md:gap-1 justify-end flex-wrap">
                         <Button 
                           variant="outline" 
                           size="sm"
                           onClick={() => handleViewTicket(ticket)}
-                          className="transition-all duration-200 hover-lift text-xs sm:text-sm"
+                          className="transition-all duration-200 hover-lift text-xs px-2 md:px-3"
                         >
-                          VIEW
+                          <span className="hidden sm:inline">VIEW</span>
+                          <span className="sm:hidden">V</span>
                         </Button>
                         <Button 
                           variant="outline" 
                           size="sm"
                           onClick={() => handleEditStart(ticket)}
-                          className="transition-all duration-200 hover-lift"
+                          className="transition-all duration-200 hover-lift px-2 md:px-3"
                         >
-                          <Edit className="w-4 h-4" />
+                          <Edit className="w-3 h-3 md:w-4 md:h-4" />
                         </Button>
                         <AlertDialog>
                           <AlertDialogTrigger asChild>

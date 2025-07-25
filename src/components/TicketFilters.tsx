@@ -44,10 +44,10 @@ export const TicketFilters: React.FC<TicketFiltersProps> = ({
     filters.tatStatus !== 'all';
 
   return (
-    <div className="flex flex-col md:flex-row gap-4 mb-6">
-      <div className="flex-1 flex flex-wrap gap-3">
+    <div className="flex flex-col space-y-3 md:space-y-0 md:flex-row gap-4 mb-6">
+      <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
         <select 
-          className="border rounded-lg px-4 py-2 bg-gradient-to-br from-white to-gray-50 text-sm font-medium shadow-sm hover:shadow-md transition-all duration-200 hover-lift"
+          className="border rounded-lg px-3 md:px-4 py-2 bg-gradient-to-br from-white to-gray-50 text-xs md:text-sm font-medium shadow-sm hover:shadow-md transition-all duration-200 hover-lift"
           value={filters.ticketStatus}
           onChange={(e) => onFilterChange({ ticketStatus: e.target.value as TicketStatus })}
         >

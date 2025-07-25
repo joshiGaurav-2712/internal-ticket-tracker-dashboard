@@ -691,13 +691,13 @@ const Index = () => {
   return (
     <div className="min-h-screen">
       <Navigation onCreateTicket={handleCreateTicket} />
-      <div className="container mx-auto py-8 px-4 lg:px-6">
-        <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-8 animate-fade-in-up">
+      <div className="container mx-auto py-4 md:py-8 px-4 md:px-6">
+        <div className="flex flex-col space-y-4 md:space-y-0 md:flex-row justify-between items-start md:items-center mb-6 md:mb-8 animate-fade-in-up">
           <div>
-            <h2 className="text-3xl lg:text-4xl font-bold bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent">
+            <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent">
               Welcome to Troopod Dashboard
             </h2>
-            <p className="text-gray-600 font-medium mt-2">Overview of your projects and tickets</p>
+            <p className="text-sm md:text-base text-gray-600 font-medium mt-2">Overview of your projects and tickets</p>
           </div>
           <LastUpdated lastTicketUpdate={lastTicketUpdate} />
         </div>
@@ -716,11 +716,11 @@ const Index = () => {
           </div>
         )}
         
-        <div className="mb-10 animate-fade-in-up animate-stagger-4" style={{ animationFillMode: 'both' }}>
-          <h2 className="text-2xl lg:text-3xl font-bold mb-6 bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent">
+        <div className="mb-8 md:mb-10 animate-fade-in-up animate-stagger-4" style={{ animationFillMode: 'both' }}>
+          <h2 className="text-xl md:text-2xl lg:text-3xl font-bold mb-4 md:mb-6 bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent">
             Ticket Details
           </h2>
-          <div className="space-y-6">
+          <div className="space-y-4 md:space-y-6">
             <TicketFilters 
               filters={filters}
               onFilterChange={handleFilterChange}
@@ -728,7 +728,7 @@ const Index = () => {
             />
             <div className="overflow-x-auto component-card gradient-shadow rounded-xl">
               {ticketsLoading ? (
-                <div className="p-8 text-center">
+                <div className="p-4 md:p-8 text-center">
                   <LoadingSpinner text="Loading tickets..." />
                 </div>
               ) : (

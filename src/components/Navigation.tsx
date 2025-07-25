@@ -46,10 +46,10 @@ export const Navigation: React.FC<NavigationProps> = ({ onCreateTicket }) => {
   };
 
   return (
-    <nav className="flex items-center justify-between px-8 py-6 component-card gradient-shadow border-b animate-fade-in-down">
-      <div className="flex items-center gap-8">
+    <nav className="flex items-center justify-between px-4 md:px-8 py-4 md:py-6 component-card gradient-shadow border-b animate-fade-in-down">
+      <div className="flex items-center gap-4 md:gap-8">
         <div className="flex items-center">
-          <h1 className="text-4xl font-bold text-purple-600 tracking-tight">
+          <h1 className="text-2xl md:text-4xl font-bold text-purple-600 tracking-tight">
             Troopod
           </h1>
         </div>
@@ -60,13 +60,15 @@ export const Navigation: React.FC<NavigationProps> = ({ onCreateTicket }) => {
           <NavLink to="/reports">Reports</NavLink> */}
         </div>
       </div>
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-2 md:gap-4">
         <Button 
-          className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 shadow-lg hover:shadow-xl transition-all duration-300 hover-lift"
+          className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 shadow-lg hover:shadow-xl transition-all duration-300 hover-lift px-3 md:px-4"
           onClick={handleCreateTicketClick}
+          size="sm"
         >
-          <Plus className="w-4 h-4 mr-2" />
-          Create New Ticket
+          <Plus className="w-4 h-4 md:mr-2" />
+          <span className="hidden md:inline">Create New Ticket</span>
+          <span className="md:hidden">Create</span>
         </Button>
         
         {/* User Menu with Logout */}
@@ -75,13 +77,13 @@ export const Navigation: React.FC<NavigationProps> = ({ onCreateTicket }) => {
             <Button 
               variant="outline" 
               size="sm"
-              className="flex items-center gap-2 hover-lift transition-all duration-300"
+              className="flex items-center gap-1 md:gap-2 hover-lift transition-all duration-300"
             >
               <User className="w-4 h-4" />
-              Account
+              <span className="hidden sm:inline">Account</span>
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-48">
+          <DropdownMenuContent align="end" className="w-48 z-50 bg-background">
             <DropdownMenuItem onClick={handleLogout} className="text-red-600 focus:text-red-700">
               <LogOut className="w-4 h-4 mr-2" />
               Logout

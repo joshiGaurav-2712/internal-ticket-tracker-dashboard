@@ -44,9 +44,9 @@ export const ViewTicketModal: React.FC<ViewTicketModalProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl animate-scale-in">
+      <DialogContent className="max-w-xs sm:max-w-md md:max-w-2xl animate-scale-in mx-4">
         <DialogHeader className="border-b pb-4">
-          <DialogTitle className="text-xl font-semibold">
+          <DialogTitle className="text-lg md:text-xl font-semibold">
             Ticket Details - {ticket.id}
           </DialogTitle>
         </DialogHeader>

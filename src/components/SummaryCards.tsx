@@ -21,11 +21,11 @@ const StatCard: React.FC<StatCardProps> = ({
   icon, 
   bgColor = "bg-white" 
 }) => (
-  <div className={`${bgColor} rounded-xl p-6 component-card gradient-shadow flex items-start gap-4 hover-lift animate-float-up`}>
-    {icon && <div className="p-3 rounded-full bg-gradient-to-br from-white to-gray-50 shadow-md">{icon}</div>}
-    <div>
-      <p className="text-gray-500 text-sm font-medium">{title}</p>
-      <p className={`text-2xl font-bold mt-1 ${textColor}`}>{value}</p>
+  <div className={`${bgColor} rounded-xl p-4 md:p-6 component-card gradient-shadow flex items-start gap-3 md:gap-4 hover-lift animate-float-up`}>
+    {icon && <div className="p-2 md:p-3 rounded-full bg-gradient-to-br from-white to-gray-50 shadow-md flex-shrink-0">{icon}</div>}
+    <div className="min-w-0 flex-1">
+      <p className="text-gray-500 text-xs md:text-sm font-medium truncate">{title}</p>
+      <p className={`text-xl md:text-2xl font-bold mt-1 ${textColor}`}>{value}</p>
     </div>
   </div>
 );
@@ -68,7 +68,7 @@ export const SummaryCards: React.FC<SummaryCardsProps> = ({ stats }) => {
   ];
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 md:gap-6">
       {statsData.map((stat, index) => (
         <div 
           key={index} 
