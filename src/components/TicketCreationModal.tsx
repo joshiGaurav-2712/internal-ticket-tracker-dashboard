@@ -107,7 +107,7 @@ export const TicketCreationModal: React.FC<TicketCreationModalProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="w-[95vw] max-w-2xl max-h-[85vh] md:max-h-[80vh] overflow-y-auto animate-scale-in component-card gradient-shadow z-[60] mx-2 md:mx-4">
+      <DialogContent className="w-[95vw] max-w-2xl h-[90vh] max-h-[90vh] overflow-y-auto animate-scale-in component-card gradient-shadow z-[60] p-4 sm:p-6">
         <DialogHeader className="border-b pb-3 md:pb-4">
           <div className="flex items-center justify-between">
             <div className="flex gap-4">

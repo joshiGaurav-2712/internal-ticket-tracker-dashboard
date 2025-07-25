@@ -219,8 +219,8 @@ export const TicketTable: React.FC<TicketTableProps> = ({
   return (
     <>
       <div className="bg-white rounded-lg shadow-sm overflow-hidden animate-scale-in hover-lift">
-        <div className="overflow-x-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
-          <div className="min-w-[800px]">
+        <div className="overflow-x-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100" style={{ WebkitOverflowScrolling: 'touch' }}>
+          <div className="min-w-[1200px] w-full">
             <Table>
             <TableHeader>
               <TableRow className="bg-gray-50">
@@ -238,11 +238,11 @@ export const TicketTable: React.FC<TicketTableProps> = ({
                 <TableHead className="w-[80px] md:w-[120px] whitespace-nowrap text-xs md:text-sm">Priority</TableHead>
                 <TableHead className="min-w-[150px] md:min-w-[200px] text-xs md:text-sm">Title</TableHead>
                 <TableHead className="w-[100px] md:w-[130px] whitespace-nowrap text-xs md:text-sm">Status</TableHead>
-                <TableHead className="w-[120px] md:w-[220px] whitespace-nowrap text-xs md:text-sm hidden sm:table-cell">Assigned To</TableHead>
-                <TableHead className="w-[100px] md:w-[150px] whitespace-nowrap text-xs md:text-sm hidden lg:table-cell">TAT Status</TableHead>
-                <TableHead className="w-[100px] md:w-[120px] whitespace-nowrap text-xs md:text-sm hidden xl:table-cell">Due Date</TableHead>
-                <TableHead className="w-[80px] md:w-[120px] whitespace-nowrap text-xs md:text-sm hidden xl:table-cell">Time</TableHead>
-                <TableHead className="w-[100px] md:w-[130px] whitespace-nowrap text-xs md:text-sm hidden 2xl:table-cell">Created</TableHead>
+                <TableHead className="w-[220px] whitespace-nowrap text-xs md:text-sm">Assigned To</TableHead>
+                <TableHead className="w-[150px] whitespace-nowrap text-xs md:text-sm">TAT Status</TableHead>
+                <TableHead className="w-[120px] whitespace-nowrap text-xs md:text-sm">Due Date</TableHead>
+                <TableHead className="w-[120px] whitespace-nowrap text-xs md:text-sm">Time</TableHead>
+                <TableHead className="w-[130px] whitespace-nowrap text-xs md:text-sm">Created</TableHead>
                 <TableHead className="text-right w-[120px] md:w-[180px] whitespace-nowrap text-xs md:text-sm">Action</TableHead>
               </TableRow>
             </TableHeader>
@@ -387,13 +387,13 @@ export const TicketTable: React.FC<TicketTableProps> = ({
                       </div>
                     )}
                   </TableCell>
-                  <TableCell className="whitespace-nowrap">
+                  <TableCell className="whitespace-nowrap w-[150px]">
                     <div className="flex items-center gap-2">
                       {getTatStatusIndicator(ticket.tatStatus)}
                       <span className="text-sm">{ticket.tatStatus}</span>
                     </div>
                   </TableCell>
-                  <TableCell className="whitespace-nowrap">
+                  <TableCell className="whitespace-nowrap w-[120px]">
                     {isEditing(ticket.id) ? (
                       <input
                         type="date"
@@ -405,7 +405,7 @@ export const TicketTable: React.FC<TicketTableProps> = ({
                       ticket.dueDate ? new Date(ticket.dueDate).toLocaleDateString() : "No due date"
                     )}
                   </TableCell>
-                  <TableCell className="whitespace-nowrap">
+                  <TableCell className="whitespace-nowrap w-[120px]">
                     {isEditing(ticket.id) ? (
                       <input
                         type="text"
@@ -418,7 +418,7 @@ export const TicketTable: React.FC<TicketTableProps> = ({
                       ticket.timeTaken || "0h"
                     )}
                   </TableCell>
-                  <TableCell className="text-muted-foreground whitespace-nowrap">{ticket.timeCreated}</TableCell>
+                  <TableCell className="text-muted-foreground whitespace-nowrap w-[130px]">{ticket.timeCreated}</TableCell>
                   <TableCell className="text-right">
                     {isEditing(ticket.id) ? (
                       <div className="flex gap-1 justify-end">
