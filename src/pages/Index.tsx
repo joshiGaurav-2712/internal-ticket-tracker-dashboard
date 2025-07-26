@@ -710,13 +710,7 @@ const Index = () => {
           <StatusOverview tatStats={tatStats} />
         </div>
         
-        {sosTicketsCount > 0 && (
-          <div className="mb-10 animate-fade-in-up animate-stagger-3" style={{ animationFillMode: 'both' }}>
-            <SOSAlert count={sosTicketsCount} />
-          </div>
-        )}
-        
-        <div className="mb-8 md:mb-10 animate-fade-in-up animate-stagger-4" style={{ animationFillMode: 'both' }}>
+        <div className="mb-8 md:mb-10 animate-fade-in-up animate-stagger-3" style={{ animationFillMode: 'both' }}>
           <h2 className="text-xl md:text-2xl lg:text-3xl font-bold mb-4 md:mb-6 bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent">
             Ticket Details
           </h2>
@@ -726,6 +720,9 @@ const Index = () => {
               onFilterChange={handleFilterChange}
               ticketCount={filteredAndSortedTickets.length}
             />
+            {sosTicketsCount > 0 && (
+              <SOSAlert count={sosTicketsCount} />
+            )}
             <div className="overflow-x-auto component-card gradient-shadow rounded-xl">
               {ticketsLoading ? (
                 <div className="p-4 md:p-8 text-center">

@@ -1,34 +1,42 @@
 
-import { Button } from "@/components/ui/button";
-import { AlertTriangle } from "lucide-react";
+import { AlertTriangle, X } from "lucide-react";
+import { useState } from "react";
 
 interface SOSAlertProps {
   count: number;
 }
 
 export const SOSAlert: React.FC<SOSAlertProps> = ({ count }) => {
-  const handleViewSOSTasks = (): void => {
-    console.log('View SOS tasks clicked');
-    // In a real app, this would navigate to SOS tasks or show a modal
+  const [isVisible, setIsVisible] = useState(true);
+
+  const handleClose = (): void => {
+    setIsVisible(false);
   };
 
+  if (!isVisible) return null;
+
   return (
-    <div className="bg-gradient-to-r from-red-50 to-orange-50 border border-red-200 rounded-xl p-6 flex items-center justify-between component-card gradient-shadow hover-lift animate-scale-in">
-      <div className="flex items-center gap-4">
-        <div className="w-12 h-12 bg-gradient-to-br from-red-100 to-red-200 rounded-xl flex items-center justify-center shadow-md">
-          <AlertTriangle className="text-red-500 w-6 h-6" />
+    <div className="bg-red-50 border border-red-200 rounded-lg p-3 sm:p-4 flex items-center justify-between mb-4 animate-scale-in">
+      <div className="flex items-center gap-3 sm:gap-4 flex-1 min-w-0">
+        <div className="w-8 h-8 sm:w-10 sm:h-10 bg-red-100 rounded-lg flex items-center justify-center flex-shrink-0">
+          <AlertTriangle className="text-red-600 w-4 h-4 sm:w-5 sm:h-5" />
         </div>
-        <div>
-          <h3 className="text-red-700 font-bold text-lg">SOS Tasks Requiring Immediate Attention</h3>
-          <p className="text-red-600 text-sm font-medium">{count} critical task{count !== 1 ? 's' : ''} need{count === 1 ? 's' : ''} your immediate response</p>
+        <div className="min-w-0 flex-1">
+          <h3 className="text-red-700 font-semibold text-sm sm:text-base leading-tight">
+            SOS Tasks Requiring Immediate Attention
+          </h3>
+          <p className="text-red-600 text-xs sm:text-sm mt-1">
+            {count} critical task{count !== 1 ? 's' : ''} need{count === 1 ? 's' : ''} your immediate response
+          </p>
         </div>
       </div>
-      <Button 
-        className="bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 shadow-lg hover:shadow-xl transition-all duration-300"
-        onClick={handleViewSOSTasks}
+      <button 
+        onClick={handleClose}
+        className="flex-shrink-0 w-6 h-6 sm:w-7 sm:h-7 flex items-center justify-center text-red-500 hover:text-red-700 hover:bg-red-100 rounded-md transition-colors ml-2 sm:ml-4"
+        aria-label="Close SOS alert"
       >
-        View SOS Tasks
-      </Button>
+        <X className="w-4 h-4 sm:w-5 sm:h-5" />
+      </button>
     </div>
   );
 };
