@@ -222,7 +222,7 @@ export const TicketTable: React.FC<TicketTableProps> = ({
         <div className="overflow-x-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100" style={{ WebkitOverflowScrolling: 'touch' }}>
           <div className="min-w-[1200px] w-full">
             <Table>
-            <TableHeader>
+            <TableHeader className="sticky top-0 z-10 bg-white">
               <TableRow className="bg-gray-50">
                 <TableHead className="w-[80px] md:w-[100px] whitespace-nowrap text-xs md:text-sm">ID</TableHead>
                 <TableHead 
@@ -246,8 +246,11 @@ export const TicketTable: React.FC<TicketTableProps> = ({
                 <TableHead className="text-right w-[120px] md:w-[180px] whitespace-nowrap text-xs md:text-sm">Action</TableHead>
               </TableRow>
             </TableHeader>
-            <TableBody>
-              {tickets.map((ticket, index) => (
+            </Table>
+            <div className="max-h-[80vh] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+              <Table>
+                <TableBody>
+                  {tickets.map((ticket, index) => (
                 <TableRow 
                   key={ticket.id} 
                   className="hover:bg-gray-50 transition-colors duration-200 animate-fade-in-up"
@@ -490,9 +493,10 @@ export const TicketTable: React.FC<TicketTableProps> = ({
                     )}
                   </TableCell>
                 </TableRow>
-              ))}
-            </TableBody>
-            </Table>
+                ))}
+                </TableBody>
+              </Table>
+            </div>
           </div>
         </div>
       </div>
